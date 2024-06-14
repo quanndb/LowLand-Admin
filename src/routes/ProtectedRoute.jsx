@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = () => {
   const accessToken = localStorage.getItem("accessToken");
-  if (!accessToken || jwtDecode(accessToken).role != "ADMIN") {
+  if (!accessToken || jwtDecode(accessToken).scope != "ADMIN") {
     return <Navigate to={"/404"} />;
   }
   return (
