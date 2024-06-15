@@ -35,14 +35,14 @@ export default function LoginView() {
 
   const handleClick = () => {
     axios
-      .post("http://localhost:2818/api/v1/login", {
-        username: userName,
+      .post("http://localhost:2818/api/auth/login", {
+        email: userName,
         password: passWord,
       })
       .then(function (response) {
-        localStorage.setItem("accessToken", response.data.token);
+        localStorage.setItem("accessToken", response.data.result.accessToken);
 
-        if (jwtDecode(response.data.token).role != "ADMIN") {
+        if (jwtDecode(response.data.result.accessToken).scope != "ADMIN") {
           router.push("/");
         } else {
           router.push("/admin/dashboard");
