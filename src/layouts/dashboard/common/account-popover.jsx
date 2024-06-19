@@ -17,15 +17,17 @@ const MENU_OPTIONS = [
   {
     label: "Home",
     icon: "eva:home-fill",
+    linkTo: "/admin/dashboard",
   },
   {
     label: "Profile",
     icon: "eva:person-fill",
+    linkTo: "/admin/profile",
   },
-  {
-    label: "Settings",
-    icon: "eva:settings-2-fill",
-  },
+  // {
+  //   label: "Settings",
+  //   icon: "eva:settings-2-fill",
+  // },
 ];
 
 // ----------------------------------------------------------------------
@@ -47,6 +49,10 @@ export default function AccountPopover() {
     router.push("/login");
   };
 
+  const handleMenuClick = (linkTo) => {
+    router.push(linkTo);
+    handleClose();
+  };
   return (
     <>
       <IconButton
@@ -101,7 +107,10 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: "dashed" }} />
 
         {MENU_OPTIONS.map((option) => (
-          <MenuItem key={option.label} onClick={handleClose}>
+          <MenuItem
+            key={option.label}
+            onClick={() => handleMenuClick(option.linkTo)}
+          >
             {option.label}
           </MenuItem>
         ))}

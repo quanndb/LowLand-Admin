@@ -14,13 +14,28 @@ export function emptyRows(page, rowsPerPage, arrayLength) {
   return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
 }
 
-function descendingComparator(a, b, orderBy) {
-  if (a[orderBy] === null) {
-    return 1;
-  }
-  if (b[orderBy] === null) {
-    return -1;
-  }
+// function descendingComparator(a, b, orderBy) {
+//   if (a[orderBy] === null) {
+//     return 1;
+//   }
+//   if (b[orderBy] === null) {
+//     return -1;
+//   }
+//   if (b[orderBy] < a[orderBy]) {
+//     return -1;
+//   }
+//   if (b[orderBy] > a[orderBy]) {
+//     return 1;
+//   }
+//   return 0;
+// }
+export const getComparator = (order, orderBy) => {
+  return order === "desc"
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+};
+
+const descendingComparator = (a, b, orderBy) => {
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -28,29 +43,24 @@ function descendingComparator(a, b, orderBy) {
     return 1;
   }
   return 0;
-}
-export function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
-}
+};
 
-export function applyFilter({ inputData, comparator, filterName }) {
+export const applyFilter = ({ inputData, comparator, filterName }) => {
   const stabilizedThis = inputData.map((el, index) => [el, index]);
-
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0]);
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
   if (filterName) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
-    );
+    return stabilizedThis
+      .map((el) => el[0])
+      .filter(
+        (item) =>
+          item.full_name.toLowerCase().includes(filterName.toLowerCase()) ||
+          item.email.toLowerCase().includes(filterName.toLowerCase()) ||
+          item.phone_number.toLowerCase().includes(filterName.toLowerCase())
+      );
   }
-
-  return inputData;
-}
+  return stabilizedThis.map((el) => el[0]);
+};
