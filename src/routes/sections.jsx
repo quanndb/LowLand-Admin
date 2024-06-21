@@ -9,6 +9,8 @@ export const BlogPage = lazy(() => import("src/pages/blog"));
 export const UserPage = lazy(() => import("src/pages/user"));
 export const LoginPage = lazy(() => import("src/pages/login"));
 export const ProductsPage = lazy(() => import("src/pages/products"));
+export const SizePage = lazy(() => import("src/pages/size"));
+
 export const Page404 = lazy(() => import("src/pages/page-not-found"));
 
 // ----------------------------------------------------------------------
@@ -27,6 +29,7 @@ export default function Router() {
             { path: "products", element: <ProductsPage /> },
             { path: "blog", element: <BlogPage /> },
             { path: "profile", element: <ProfilePage /> },
+            { path: "size", element: <SizePage /> },
           ],
         },
       ],

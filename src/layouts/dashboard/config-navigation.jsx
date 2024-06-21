@@ -30,10 +30,15 @@ const navConfig = [
     path: "/admin/blog",
     icon: icon("ic_blog"),
   },
+  // {
+  //   title: "login",
+  //   path: "/login",
+  //   icon: icon("ic_lock"),
+  // },
   {
-    title: "login",
-    path: "/login",
-    icon: icon("ic_lock"),
+    title: "size",
+    path: "/admin/size",
+    icon: icon("ic_analytics"),
   },
   // {
   //   title: "Not found",

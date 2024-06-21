@@ -44,10 +44,12 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={account.photoURL} alt="photoURL" />
+      <Avatar src={account.imageURL} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
-        <Typography variant="h5">{jwtDecode(localStorage.getItem("accessToken")).fullName}</Typography>
+        {/* <Typography variant="h5">{jwtDecode(localStorage.getItem("accessToken")).fullName}</Typography> */}
+
+        <Typography variant="h5" fontSize={"14px !important"}>{account.fullName}</Typography>
 
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {account.role}

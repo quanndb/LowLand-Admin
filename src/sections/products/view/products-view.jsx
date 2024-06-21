@@ -1,29 +1,33 @@
 import { useState } from "react";
-
-import Stack from "@mui/material/Stack";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Unstable_Grid2";
-import Typography from "@mui/material/Typography";
-
-import { products } from "src/_mock/products";
-
+import { sp } from "src/_mock/sp";
 import ProductCard from "../product-card";
-import ProductSort from "../product-sort";
-import ProductFilters from "../product-filters";
-import ProductCartWidget from "../product-cart-widget";
 
-// ----------------------------------------------------------------------
+// import ProductDetailModal from "./ProductDetailModal";
+import {Box, Pagination, Typography, Grid, Container} from "@mui/material";
+
 
 export default function ProductsView() {
-  const [openFilter, setOpenFilter] = useState(false);
+  const [page, setPage] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const handleOpenFilter = () => {
-    setOpenFilter(true);
+  const handlePageChange = (event, value) => {
+    setPage(value);
   };
 
-  const handleCloseFilter = () => {
-    setOpenFilter(false);
+  const handleProductClick = (sp) => {
+    setSelectedProduct(sp);
+    setModalOpen(true);
   };
+const productsPerPage =8;
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const startIndex = (page - 1) * productsPerPage;
+  const endIndex = startIndex + productsPerPage;
+
+  const currentProducts = sp.slice(startIndex, endIndex);
 
   return (
     <Container>
@@ -31,33 +35,33 @@ export default function ProductsView() {
         Products
       </Typography>
 
-      <Stack
-        direction="row"
-        alignItems="center"
-        flexWrap="wrap-reverse"
-        justifyContent="flex-end"
-        sx={{ mb: 5 }}
-      >
-        <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-          <ProductFilters
-            openFilter={openFilter}
-            onOpenFilter={handleOpenFilter}
-            onCloseFilter={handleCloseFilter}
-          />
-
-          <ProductSort />
-        </Stack>
-      </Stack>
-
       <Grid container spacing={3}>
-        {products.map((product) => (
-          <Grid key={product.id} xs={12} sm={6} md={3}>
-            <ProductCard product={product} />
+        {currentProducts.map((product) => (
+          <Grid key={product.id} item xs={12} sm={6} md={3}>
+            <ProductCard
+              product={product}
+              onClick={() => handleProductClick(product)}
+            />
           </Grid>
         ))}
       </Grid>
 
-      <ProductCartWidget />
+      <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+        <Pagination
+          count={Math.ceil(sp.length / productsPerPage)}
+          page={page}
+          onChange={handlePageChange}
+          variant="outlined"
+          shape="rounded"
+          color="primary"
+        />
+      </Box>
+
+      {/* <ProductDetailModal
+        product={selectedProduct}
+        open={modalOpen}
+        onClose={handleCloseModal}
+      /> */}
     </Container>
   );
 }
