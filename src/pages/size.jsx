@@ -8,7 +8,7 @@ export default function SizePage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Size | Lowland </title>
       </Helmet>
 
       <SizeView />

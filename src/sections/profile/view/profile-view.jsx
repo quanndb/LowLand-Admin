@@ -1,4 +1,5 @@
-import  { useState } from "react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Container,
   Typography,
@@ -14,20 +15,11 @@ import {
 import DetailsTab from "./detailsTab";
 import EditTab from "./editTab";
 import ChangePasswordTab from "./changePassword";
-
-const user = {
-  displayName: "Nguyễn Anh Quân",
-  role: "ADMIN",
-  imageUrl: "https://via.placeholder.com/150",
-  fullName: "Alec M. Thompson",
-  phoneNumber: "(44) 123 1234 123",
-  email: "alecthompson@mail.com",
-  address: "Việt Nam",
-  bio: "Hi, I'm Alec Thompson. Decisions: If you can't decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality).",
-};
+import { user } from "src/redux/selectors/UserSelector";
 
 export default function ProfileView() {
   const [activeTab, setActiveTab] = useState("details");
+  const userData = useSelector(user);
 
   return (
     <Container>
@@ -65,19 +57,19 @@ export default function ProfileView() {
           }}
         >
           <Avatar
-            src={user.imageUrl}
-            alt={user.displayName}
+            src={userData.imageURL}
+            alt={userData.email}
             sx={{ width: 80, height: 80 }}
           />
           <Box sx={{ ml: 2 }}>
-            <Typography variant="h5">{user.displayName}</Typography>
+            <Typography variant="h5">{userData.fullName}</Typography>
             <Typography variant="subtitle1" color="text.secondary">
-              {user.role}
+              {userData.role}
             </Typography>
           </Box>
 
           <Box sx={{ ml: "auto" }}>
-            <Stack direction="row" spacing={1} sx={{md:{}}}>
+            <Stack direction="row" spacing={1} sx={{ md: {} }}>
               <IconButton
                 sx={{ borderRadius: "4px" }}
                 color={activeTab === "details" ? "primary" : "inherit"}
@@ -106,15 +98,11 @@ export default function ProfileView() {
           </Box>
         </Box>
       </Card>
-      
-      {activeTab === "details" && (
-        <DetailsTab user={user} />
-      )}
-      {activeTab ==="edit" && (
-      <EditTab user={user}></EditTab>
-      )}
-      {activeTab ==="changePassword" && (
-      <ChangePasswordTab user={user}></ChangePasswordTab>
+
+      {activeTab === "details" && <DetailsTab user={userData} />}
+      {activeTab === "edit" && <EditTab user={userData}></EditTab>}
+      {activeTab === "changePassword" && (
+        <ChangePasswordTab user={userData}></ChangePasswordTab>
       )}
     </Container>
   );

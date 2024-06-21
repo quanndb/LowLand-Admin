@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Outlet, Navigate, useRoutes } from "react-router-dom";
+import { Outlet, Navigate, createBrowserRouter } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -15,38 +15,33 @@ export const Page404 = lazy(() => import("src/pages/page-not-found"));
 
 // ----------------------------------------------------------------------
 
-export default function Router() {
-  const routes = useRoutes([
-    {
-      element: <Outlet />,
-      path: "admin",
-      children: [
-        {
-          element: <ProtectedRoute />,
-          children: [
-            { path: "dashboard", element: <IndexPage /> },
-            { path: "user", element: <UserPage /> },
-            { path: "products", element: <ProductsPage /> },
-            { path: "blog", element: <BlogPage /> },
-            { path: "profile", element: <ProfilePage /> },
-            { path: "size", element: <SizePage /> },
-          ],
-        },
-      ],
-    },
-    {
-      path: "login",
-      element: <LoginPage />,
-    },
-    {
-      path: "404",
-      element: <Page404 />,
-    },
-    {
-      path: "*",
-      element: <Navigate to="/404" replace />,
-    },
-  ]);
-
-  return routes;
-}
+export const routes = createBrowserRouter([
+  {
+    element: <Outlet />,
+    children: [
+      {
+        element: <ProtectedRoute />,
+        children: [
+          { path: "dashboard", element: <IndexPage /> },
+          { path: "user", element: <UserPage /> },
+          { path: "products", element: <ProductsPage /> },
+          { path: "blog", element: <BlogPage /> },
+          { path: "profile", element: <ProfilePage /> },
+          { path: "size", element: <SizePage /> },
+        ],
+      },
+    ],
+  },
+  {
+    path: "login",
+    element: <LoginPage />,
+  },
+  {
+    path: "404",
+    element: <Page404 />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/404" replace />,
+  },
+]);

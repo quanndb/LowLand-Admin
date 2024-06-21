@@ -1,11 +1,9 @@
 import LoadingButton from "@mui/lab/LoadingButton";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
-import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
@@ -14,10 +12,14 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import Iconify from "src/components/iconify";
-import Logo from "src/components/logo";
 import { useRouter } from "src/routes/hooks";
 import { bgGradient } from "src/theme/css";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Logo from "src/components/logo";
+import authAPI from "src/services/API/authAPI";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import UserManagerSlice from "src/redux/slices/UserManagerSlice";
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +28,7 @@ export default function LoginView() {
 
   const router = useRouter();
 
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
   const [userName, setUserName] = useState("");
@@ -34,30 +36,25 @@ export default function LoginView() {
   const [passWord, setPassWord] = useState("");
 
   const handleClick = () => {
-    axios
-      .post("http://localhost:2818/api/auth/login", {
+    authAPI
+      .login({
         email: userName,
         password: passWord,
       })
-      .then(function (response) {
-        localStorage.setItem("accessToken", response.data.result.accessToken);
-
-        if (jwtDecode(response.data.result.accessToken).scope != "ADMIN") {
-          router.push("/");
-        } else {
-          router.push("/admin/dashboard");
+      .then((res) => {
+        const accessToken = res.accessToken;
+        if (jwtDecode(accessToken).scope !== "ADMIN") {
+          toast.error("You are not able to login with this account");
+          return;
         }
+        dispatch(UserManagerSlice.actions.setUser(res));
+        router.replace("/dashboard");
+        toast.success("Login success!");
       })
-      .catch(function (error) {
-        console.log(error);
+      .catch((err) => {
+        toast.error(err);
       });
   };
-
-  if (localStorage.accessToken) {
-    useEffect(() => {
-      navigate("/admin/dashboard");
-    }, []);
-  }
 
   const renderForm = (
     <>
@@ -92,17 +89,6 @@ export default function LoginView() {
         />
       </Stack>
 
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="flex-end"
-        sx={{ my: 3 }}
-      >
-        <Link variant="subtitle2" underline="hover">
-          Forgot password?
-        </Link>
-      </Stack>
-
       <LoadingButton
         fullWidth
         size="large"
@@ -110,6 +96,7 @@ export default function LoginView() {
         variant="contained"
         color="inherit"
         onClick={handleClick}
+        sx={{ mt: 3 }}
       >
         Login
       </LoadingButton>
@@ -126,13 +113,9 @@ export default function LoginView() {
         height: 1,
       }}
     >
-      <Logo
-        sx={{
-          position: "fixed",
-          top: { xs: 16, md: 24 },
-          left: { xs: 16, md: 24 },
-        }}
-      />
+      <Box sx={{ p: 5, position: "fixed" }}>
+        <Logo />
+      </Box>
 
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
         <Card
@@ -142,50 +125,15 @@ export default function LoginView() {
             maxWidth: 420,
           }}
         >
-          <Typography variant="h4">Sign in to Minimal</Typography>
+          <Typography variant="h4">Sign in to Lowland Admin</Typography>
 
           <Typography variant="body2" sx={{ mt: 2, mb: 5 }}>
-            Don’t have an account?
-            <Link variant="subtitle2" sx={{ ml: 0.5 }}>
-              Get started
-            </Link>
+            Lowland administrator for our shop
           </Typography>
-
-          <Stack direction="row" spacing={2}>
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:google-fill" color="#DF3E30" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:facebook-fill" color="#1877F2" />
-            </Button>
-
-            <Button
-              fullWidth
-              size="large"
-              color="inherit"
-              variant="outlined"
-              sx={{ borderColor: alpha(theme.palette.grey[500], 0.16) }}
-            >
-              <Iconify icon="eva:twitter-fill" color="#1C9CEA" />
-            </Button>
-          </Stack>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              OR
+              Signin
             </Typography>
           </Divider>
 

@@ -8,7 +8,7 @@ export default function ProfilePage() {
   return (
     <>
       <Helmet>
-        <title> Profile | Minimal UI </title>
+        <title> Profile | Lowland </title>
       </Helmet>
 
       <ProfileView />

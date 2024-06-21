@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import { faker } from "@faker-js/faker";
 
 import Container from "@mui/material/Container";
@@ -15,14 +16,16 @@ import AppWidgetSummary from "../app-widget-summary";
 import AppTrafficBySite from "../app-traffic-by-site";
 import AppCurrentSubject from "../app-current-subject";
 import AppConversionRates from "../app-conversion-rates";
+import { user } from "src/redux/selectors/UserSelector";
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
+  const userData = useSelector(user);
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Hi, Welcome back 👋
+        Welcome, {userData.fullName}
       </Typography>
 
       <Grid container spacing={3}>

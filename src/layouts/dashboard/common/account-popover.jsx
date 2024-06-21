@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -9,7 +10,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import { useRouter } from "../../../routes/hooks";
-import { account } from "../../../_mock/account";
+import { user } from "src/redux/selectors/UserSelector";
+import UserManagerSlice from "src/redux/slices/UserManagerSlice";
 
 // ----------------------------------------------------------------------
 
@@ -17,12 +19,12 @@ const MENU_OPTIONS = [
   {
     label: "Home",
     icon: "eva:home-fill",
-    linkTo: "/admin/dashboard",
+    linkTo: "/dashboard",
   },
   {
     label: "Profile",
     icon: "eva:person-fill",
-    linkTo: "/admin/profile",
+    linkTo: "/profile",
   },
   // {
   //   label: "Settings",
@@ -33,6 +35,8 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+  const dispatch = useDispatch();
+  const account = useSelector(user);
   const [open, setOpen] = useState(null);
 
   const router = useRouter();
@@ -45,8 +49,7 @@ export default function AccountPopover() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    router.push("/login");
+    dispatch(UserManagerSlice.actions.removeUser());
   };
 
   const handleMenuClick = (linkTo) => {

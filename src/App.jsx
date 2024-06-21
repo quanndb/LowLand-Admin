@@ -2,17 +2,10 @@ import "./global.css";
 
 import { useScrollToTop } from "./hooks/use-scroll-to-top";
 
-import Router from "./routes/sections";
-import ThemeProvider from "./theme";
-
 // ----------------------------------------------------------------------
 
-export default function App() {
+export default function App({ children }) {
   useScrollToTop();
 
-  return (
-    <ThemeProvider>
-      <Router />
-    </ThemeProvider>
-  );
+  return <>{children}</>;
 }
