@@ -18,16 +18,20 @@ import { sizes } from "src/_mock/sizes";
 const ProductDetailModal = ({ product, open, onClose }) => {
   if (!product) return null;
 
-  const { images, name, originalPrices, materials, size, description } = product;
+  const { images, name, originalPrices, materials, size, description } =
+    product;
 
   const [editedName, setEditedName] = useState(name);
-  const [editedOriginalPrices, setEditedOriginalPrices] = useState(originalPrices);
+  const [editedOriginalPrices, setEditedOriginalPrices] =
+    useState(originalPrices);
   const [editedDescription, setEditedDescription] = useState(description);
   const [editedMaterials, setEditedMaterials] = useState(materials || []);
   const [currentTab, setCurrentTab] = useState(0);
   const [newMaterialName, setNewMaterialName] = useState("");
   const [newMaterialValue, setNewMaterialValue] = useState("");
-  const [selectedSize, setSelectedSize] = useState(size.length > 0 ? size[0] : null);
+  const [selectedSize, setSelectedSize] = useState(
+    size.length > 0 ? size[0] : null
+  );
   const [editedSizes, setEditedSizes] = useState(size);
 
   const [newSizeName, setNewSizeName] = useState("");
@@ -35,8 +39,12 @@ const ProductDetailModal = ({ product, open, onClose }) => {
 
   const [imageFile1, setImageFile1] = useState(null);
   const [imageFile2, setImageFile2] = useState(null);
-  const [imagePreviewUrl1, setImagePreviewUrl1] = useState(images[0].imageUrl || "");
-  const [imagePreviewUrl2, setImagePreviewUrl2] = useState(images[1].imageUrl || "");
+  const [imagePreviewUrl1, setImagePreviewUrl1] = useState(
+    images[0].imageUrl || ""
+  );
+  const [imagePreviewUrl2, setImagePreviewUrl2] = useState(
+    images[1].imageUrl || ""
+  );
 
   const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
   const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
@@ -212,7 +220,10 @@ const ProductDetailModal = ({ product, open, onClose }) => {
               sx={{ m: 1 }}
             >
               <Box
-                onClick={() => imagePreviewUrl1 === "" && document.getElementById("imageUpload1").click()}
+                onClick={() =>
+                  imagePreviewUrl1 === "" &&
+                  document.getElementById("imageUpload1").click()
+                }
                 sx={{
                   width: "48%",
                   height: 200,
@@ -258,7 +269,10 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                 />
               </Box>
               <Box
-                onClick={() => imagePreviewUrl2 === "" && document.getElementById("imageUpload2").click()}
+                onClick={() =>
+                  imagePreviewUrl2 === "" &&
+                  document.getElementById("imageUpload2").click()
+                }
                 sx={{
                   width: "48%",
                   height: 200,
@@ -315,6 +329,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
 
             <TextField
               label="Original Prices"
+              type="number"
               value={editedOriginalPrices}
               onChange={handleOriginalPricesChange}
               fullWidth
@@ -484,12 +499,21 @@ const ProductDetailModal = ({ product, open, onClose }) => {
           </Box>
         )}
 
-        <Box sx={{ marginTop: "auto", display: "flex", justifyContent: "space-between" }}>
-          <Button variant="contained" color="primary" onClick={handleSaveChanges}>
-            Save Changes
-          </Button>
-          <Button variant="outlined" color="secondary" onClick={onClose}>
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={onClose}
+            sx={{ mr: 1 }}
+          >
             Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleSaveChanges}
+          >
+            Save Changes
           </Button>
         </Box>
       </DialogContent>
@@ -497,15 +521,28 @@ const ProductDetailModal = ({ product, open, onClose }) => {
       <Dialog open={deleteConfirmDialogOpen} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete this image?
-          </Typography>
-          <Box sx={{ marginTop: 2, display: "flex", justifyContent: "space-between" }}>
-            <Button variant="contained" color="primary" onClick={handleConfirmDelete}>
-              Yes
-            </Button>
-            <Button variant="outlined" color="secondary" onClick={handleCancelDelete}>
+          <Typography>Are you sure you want to delete this image?</Typography>
+          <Box
+            sx={{
+              marginTop: 2,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleCancelDelete}
+              sx={{ mr: 1 }}
+            >
               No
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleConfirmDelete}
+            >
+              Yes
             </Button>
           </Box>
         </DialogContent>

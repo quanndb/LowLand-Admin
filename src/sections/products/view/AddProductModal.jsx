@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -12,13 +12,29 @@ import {
   Select,
   MenuItem,
   IconButton,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 
 import { materials } from "src/_mock/materials";
-import { sizes } from "src/_mock/sizes";
+import sizeAPI from "src/services/API/sizeAPI";
+import { toast } from "react-toastify";
 
 const AddProductModal = ({ open, onClose, onAddProduct }) => {
+  const [sizeList, setSizeList] = useState([]);
+  useEffect(() => {
+    sizeAPI
+      .getAll()
+      .then((res) => {
+        setSizeList(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }, []);
   const [newProductName, setNewProductName] = useState("");
+  const [newListDetails, setNewListDetails] = useState([]);
+  const [newProductType, setNewProductType] = useState(1);
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [currentTab, setCurrentTab] = useState(0);
@@ -26,7 +42,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   const [newMaterialValue, setNewMaterialValue] = useState("");
   const [newMaterials, setNewMaterials] = useState([]);
   const [selectedSize, setSelectedSize] = useState("");
-  const [newSizePrice, setNewSizePrice] = useState("");
+  const [newSizePrice, setNewSizePrice] = useState(0);
   const [newSizes] = useState([]);
   const [imageFile1, setImageFile1] = useState(null);
   const [imageFile2, setImageFile2] = useState(null);
@@ -37,13 +53,16 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
 
   const handleAddProduct = () => {
     const newProduct = {
-      name: newProductName,
-      originalPrices: newProductPrice,
+      productId: 0,
+      productName: newProductName,
+      isActive: true,
       description: newDescription,
-      materials: newMaterials,
-      sizes: newSizes,
-      images: [imagePreviewUrl1, imagePreviewUrl2].filter(Boolean),
+      productTypeId: newProductType,
+      listDetail: newListDetails,
+      listRecipe: newMaterials,
+      listImageBase64: [imagePreviewUrl1, imagePreviewUrl2].filter(Boolean),
     };
+    console.log(newProduct);
 
     onAddProduct(newProduct);
 
@@ -90,12 +109,12 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   };
 
   const handleAddSize = () => {
-    if (selectedSize && newSizePrice.trim()) {
+    if (selectedSize && newSizePrice) {
       const newSize = {
-        id: selectedSize,
+        productSizeId: selectedSize,
         price: newSizePrice,
       };
-      setNewSizes([...newSizes, newSize]);
+      setNewListDetails([...newListDetails, newSize]);
       setSelectedSize("");
       setNewSizePrice("");
     }
@@ -114,8 +133,8 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   };
 
   const handleRemoveImage = (index) => {
-    setImageToDeleteIndex(index); 
-    setDeleteConfirmDialogOpen(true); 
+    setImageToDeleteIndex(index);
+    setDeleteConfirmDialogOpen(true);
   };
 
   const handleConfirmDelete = () => {
@@ -157,99 +176,153 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
               gap={2}
               sx={{ m: 1 }}
             >
-              <Box
-                onClick={() => imagePreviewUrl1 === "" && document.getElementById("imageUpload1").click()}
-                sx={{
-                  width: "48%",
-                  height: 200,
-                  border: "2px dashed grey",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  position: "relative",
-                  cursor: imagePreviewUrl1 === "" ? "pointer" : "default",
-                  backgroundImage: `url(${imagePreviewUrl1 || ""})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              >
-                {!imagePreviewUrl1 && <Typography variant="h4">+</Typography>}
-                {imagePreviewUrl1 && (
-                  <IconButton
-                    onClick={() => handleRemoveImage(0)}
-                    sx={{
-                      position: "absolute",
-                      top: -12,
-                      right: -12,
-                      width: "20px",
-                      height: "20px",
-                      backgroundColor: "#dfdfdf",
-                      "&:hover": {
-                        backgroundColor: "#dfdfdf",
-                        opacity: 0.7,
-                      },
-                    }}
-                  >
-                    x
-                  </IconButton>
-                )}
-                <input
-                  type="file"
-                  id="imageUpload1"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) =>
-                    handleImageChange(e, setImageFile1, setImagePreviewUrl1)
+              {/* Image  */}
+              <Box sx={{ width: "100%", display: "flex", gap: 2 }}>
+                <Box
+                  onClick={() =>
+                    imagePreviewUrl1 === "" &&
+                    document.getElementById("imageUpload1").click()
                   }
-                />
-              </Box>
-              <Box
-                onClick={() => imagePreviewUrl2 === "" && document.getElementById("imageUpload2").click()}
-                sx={{
-                  width: "48%",
-                  height: 200,
-                  border: "2px dashed grey",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  position: "relative",
-                  cursor: imagePreviewUrl2 === "" ? "pointer" : "default",
-                  backgroundImage: `url(${imagePreviewUrl2 || ""})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              >
-                {!imagePreviewUrl2 && <Typography variant="h4">+</Typography>}
-                {imagePreviewUrl2 && (
-                  <IconButton
-                    onClick={() => handleRemoveImage(1)}
-                    sx={{
-                      position: "absolute",
-                      top: -12,
-                      right: -12,
-                      width: "20px",
-                      height: "20px",
-                      backgroundColor: "#dfdfdf",
-                      "&:hover": {
+                  sx={{
+                    width: "48%",
+                    height: 200,
+                    border: "2px dashed grey",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "relative",
+                    cursor: imagePreviewUrl1 === "" ? "pointer" : "default",
+                    backgroundImage: `url(${imagePreviewUrl1 || ""})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  {!imagePreviewUrl1 && <Typography variant="h4">+</Typography>}
+                  {imagePreviewUrl1 && (
+                    <IconButton
+                      onClick={() => handleRemoveImage(0)}
+                      sx={{
+                        position: "absolute",
+                        top: -12,
+                        right: -12,
+                        width: "20px",
+                        height: "20px",
                         backgroundColor: "#dfdfdf",
-                        opacity: 0.7,
-                      },
-                    }}
-                  >
-                    x
-                  </IconButton>
-                )}
-                <input
-                  type="file"
-                  id="imageUpload2"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={(e) =>
-                    handleImageChange(e, setImageFile2, setImagePreviewUrl2)
+                        "&:hover": {
+                          backgroundColor: "#dfdfdf",
+                          opacity: 0.7,
+                        },
+                      }}
+                    >
+                      x
+                    </IconButton>
+                  )}
+                  <input
+                    type="file"
+                    id="imageUpload1"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) =>
+                      handleImageChange(e, setImageFile1, setImagePreviewUrl1)
+                    }
+                  />
+                </Box>
+                <Box
+                  onClick={() =>
+                    imagePreviewUrl2 === "" &&
+                    document.getElementById("imageUpload2").click()
                   }
-                />
+                  sx={{
+                    width: "48%",
+                    height: 200,
+                    border: "2px dashed grey",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "relative",
+                    cursor: imagePreviewUrl2 === "" ? "pointer" : "default",
+                    backgroundImage: `url(${imagePreviewUrl2 || ""})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                >
+                  {!imagePreviewUrl2 && <Typography variant="h4">+</Typography>}
+                  {imagePreviewUrl2 && (
+                    <IconButton
+                      onClick={() => handleRemoveImage(1)}
+                      sx={{
+                        position: "absolute",
+                        top: -12,
+                        right: -12,
+                        width: "20px",
+                        height: "20px",
+                        backgroundColor: "#dfdfdf",
+                        "&:hover": {
+                          backgroundColor: "#dfdfdf",
+                          opacity: 0.7,
+                        },
+                      }}
+                    >
+                      x
+                    </IconButton>
+                  )}
+                  <input
+                    type="file"
+                    id="imageUpload2"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) =>
+                      handleImageChange(e, setImageFile2, setImagePreviewUrl2)
+                    }
+                  />
+                </Box>
               </Box>
+              {/* details */}
             </Box>
+            <Box>
+              <TextField
+                label="Product Name"
+                value={newProductName}
+                onChange={(e) => {
+                  setNewProductName(e.target.value);
+                }}
+                fullWidth
+                margin="normal"
+              />
+              <FormControl
+                sx={{
+                  width: "100%",
+                  mt: 1,
+                }}
+              >
+                <InputLabel
+                  sx={{ backgroundColor: "white", borderRadius: "8px" }}
+                >
+                  Product type
+                </InputLabel>
+                <Select
+                  value={newProductType}
+                  onChange={(e) => setNewProductType(e.target.value)}
+                  label="Product type"
+                >
+                  <MenuItem value={1}>Black coffee</MenuItem>
+                  <MenuItem value={2}>Brown coffee</MenuItem>
+                  <MenuItem value={3}>Smell coffee</MenuItem>
+                  <MenuItem value={4}>Weasel coffee</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="Description"
+                value={newDescription}
+                type="text"
+                multiline
+                onChange={(e) => setNewDescription(e.target.value)}
+                fullWidth
+                margin="normal"
+                sx={{ mb: 2 }}
+              />
+            </Box>
+            {/* details end */}
             <Dialog
               open={deleteConfirmDialogOpen}
               onClose={handleCancelDelete}
@@ -282,11 +355,11 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   key={index}
                   style={{ display: "flex", gap: 10, marginBottom: "10px" }}
                 >
-                  <TextField 
-                  fullWidth
-                  variant="outlined"
-                  disabled
-                  value={material.materialName}
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    disabled
+                    value={material.materialName}
                   ></TextField>
                   <TextField
                     fullWidth
@@ -316,7 +389,10 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   fullWidth
                 >
                   {materials.map((material) => (
-                    <MenuItem key={material.materialId} value={material.materialName}>
+                    <MenuItem
+                      key={material.materialId}
+                      value={material.materialName}
+                    >
                       {material.materialName}
                     </MenuItem>
                   ))}
@@ -334,7 +410,9 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   label="Unit"
                   variant="outlined"
                   value={
-                    materials.find((material) => material.materialName === selectedMaterial)?.unit || ""
+                    materials.find(
+                      (material) => material.materialName === selectedMaterial
+                    )?.unit || ""
                   }
                   disabled
                 />
@@ -373,17 +451,16 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   />
                 </li>
               ))}
-              <li style={{ display: "flex", gap: 10, marginBottom: "10px" }}>
+              <li style={{ display: "flex", gap: 10 }}>
                 <Select
                   value={selectedSize}
                   onChange={handleSizeChange}
                   variant="outlined"
                   fullWidth
-                  style={{ marginBottom: "10px" }}
                 >
-                  {sizes.map((sz) => (
-                    <MenuItem key={sz.id} value={sz.id}>
-                      {sz.name}
+                  {sizeList.map((sz) => (
+                    <MenuItem key={sz.productSizeId} value={sz.productSizeId}>
+                      {sz.sizeName}
                     </MenuItem>
                   ))}
                 </Select>
@@ -392,7 +469,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   label="Price"
                   type="number"
                   variant="outlined"
-                  value={sizes.find((size) => size.id === selectedSize)?.price || ""}
+                  value={newSizePrice}
                   onChange={(e) => setNewSizePrice(e.target.value)}
                 />
                 <Button
@@ -407,16 +484,15 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
           </Box>
         )}
         <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end" }}>
+          <Button onClick={onClose} variant="outlined" sx={{ mr: 1 }}>
+            Close
+          </Button>
           <Button
             variant="contained"
             color="primary"
             onClick={handleAddProduct}
-            style={{ marginRight: "10px" }}
           >
             Add Product
-          </Button>
-          <Button onClick={onClose} variant="outlined">
-            Close
           </Button>
         </Box>
       </DialogContent>
