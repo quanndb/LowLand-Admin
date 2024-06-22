@@ -14,12 +14,13 @@ import { useEffect, useState } from "react";
 import Iconify from "src/components/iconify";
 import { useRouter } from "src/routes/hooks";
 import { bgGradient } from "src/theme/css";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Logo from "src/components/logo";
 import authAPI from "src/services/API/authAPI";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UserManagerSlice from "src/redux/slices/UserManagerSlice";
+import { accessToken } from "src/redux/selectors/UserSelector";
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,8 @@ export default function LoginView() {
   const theme = useTheme();
 
   const router = useRouter();
+
+  const token = useSelector(accessToken);
 
   const dispatch = useDispatch();
 
@@ -55,6 +58,10 @@ export default function LoginView() {
         toast.error(err);
       });
   };
+
+  if (token && jwtDecode(token).scope === "ADMIN") {
+    return <Navigate to={"/dashboard"} replace={true} />;
+  }
 
   const renderForm = (
     <>

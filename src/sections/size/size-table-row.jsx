@@ -13,11 +13,11 @@ import Iconify from "src/components/iconify";
 export default function UserTableRow({
   selected,
   description,
-  name,
+  sizeName,
   STT,
   handleClick,
-  handleEdit, 
-  handleDelete, 
+  handleEdit,
+  handleDelete,
 }) {
   const [open, setOpen] = useState(null);
 
@@ -45,7 +45,7 @@ export default function UserTableRow({
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
         <TableCell>{STT}</TableCell>
-        <TableCell>{name}</TableCell>
+        <TableCell>{sizeName}</TableCell>
         <TableCell>{description}</TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
@@ -79,8 +79,8 @@ export default function UserTableRow({
 }
 
 UserTableRow.propTypes = {
-  STT :PropTypes.string,
-  name: PropTypes.string,
+  STT: PropTypes.string,
+  sizeName: PropTypes.string,
   description: PropTypes.any,
   handleClick: PropTypes.func,
   handleEdit: PropTypes.func,

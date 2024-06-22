@@ -40,6 +40,16 @@ const navConfig = [
     path: "/size",
     icon: icon("ic_analytics"),
   },
+  {
+    title: "order",
+    path: "/order",
+    icon: icon("ic_order"),
+  },
+  {
+    title: "material",
+    path: "/material",
+    icon: icon("ic_import"),
+  },
   // {
   //   title: "Not found",
   //   path: "/404",

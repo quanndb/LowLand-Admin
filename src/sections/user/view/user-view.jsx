@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Stack,
@@ -18,8 +18,11 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-import { accounts } from "src/_mock/accounts";
 import Iconify from "src/components/iconify";
 import Scrollbar from "src/components/scrollbar";
 import TableNoData from "../table-no-data";
@@ -28,8 +31,22 @@ import UserTableHead from "../user-table-head";
 import TableEmptyRows from "../table-empty-rows";
 import UserTableToolbar from "../user-table-toolbar";
 import { emptyRows, applyFilter, getComparator } from "../utils";
+import accountAPI from "src/services/API/accountsAPI";
+import { toast } from "react-toastify";
+import { set } from "lodash";
 
 export default function UserPage() {
+  const [accounts, setAccounts] = useState([]);
+  useEffect(() => {
+    accountAPI
+      .getAlls()
+      .then((res) => {
+        setAccounts(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }, []);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
@@ -43,22 +60,22 @@ export default function UserPage() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const [newUser, setNewUser] = useState({
-    full_name: "",
+    fullName: "",
     email: "",
-    phone_number: "",
-    gender: "",
+    password: "",
+    phoneNumber: "",
+    gender: 1,
     address: "",
-    role: "",
+    role: tabValue === 0 ? "ADMIN" : tabValue === 1 ? "EMPLOYEE" : "USER",
   });
 
   const [editUser, setEditUser] = useState({
     id: null,
-    full_name: "",
+    fullName: "",
     email: "",
-    phone_number: "",
-    gender: "",
+    phoneNumber: "",
+    gender: 1,
     address: "",
-    role: "",
   });
 
   const handleSort = (event, id) => {
@@ -112,6 +129,15 @@ export default function UserPage() {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+    setNewUser({
+      fullName: "",
+      email: "",
+      password: "",
+      phoneNumber: "",
+      gender: 1,
+      address: "",
+      role: newValue === 0 ? "ADMIN" : newValue === 1 ? "EMPLOYEE" : "USER",
+    });
     setPage(0);
   };
 
@@ -129,6 +155,7 @@ export default function UserPage() {
   };
 
   const handleOpenDeleteModal = (user) => {
+    setEditUser(user);
     setOpenDeleteModal(true);
   };
 
@@ -141,9 +168,9 @@ export default function UserPage() {
     setOpenEditModal(false);
     setEditUser({
       id: null,
-      full_name: "",
+      fullName: "",
       email: "",
-      phone_number: "",
+      phoneNumber: "",
       gender: "",
       address: "",
       role: "",
@@ -159,14 +186,59 @@ export default function UserPage() {
   };
 
   const handleSubmitNewUser = () => {
+    accountAPI
+      .createAccount(newUser)
+      .then((res) => {
+        toast.success("Create user successfully");
+        setAccounts([...accounts, res]);
+      })
+      .catch((err) => {
+        toast.error(err);
+      })
+      .finally(() => {
+        setNewUser({
+          fullName: "",
+          email: "",
+          password: "",
+          phoneNumber: "",
+          gender: 1,
+          address: "",
+          role: tabValue === 0 ? "ADMIN" : tabValue === 1 ? "EMPLOYEE" : "USER",
+        });
+      });
     setOpenAddModal(false);
   };
 
   const handleSubmitEditUser = () => {
+    accountAPI
+      .updateAccount(editUser)
+      .then((res) => {
+        toast.success("Update user successfully");
+        console.log(res, editUser);
+        setAccounts(
+          accounts.map((account) => {
+            return account.accountId === res.accountId ? res : account;
+          })
+        );
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
     setOpenEditModal(false);
   };
 
   const handleSubmitDeleteUser = () => {
+    accountAPI
+      .deleteAccount(editUser.accountId)
+      .then((res) => {
+        toast.success("Delete user successfully");
+        setAccounts(
+          accounts.filter((account) => account.accountId !== editUser.accountId)
+        );
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
     setOpenDeleteModal(false);
   };
   const getFilteredAccountsByRole = (role) => {
@@ -250,13 +322,13 @@ export default function UserPage() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => (
                     <UserTableRow
-                      key={row.id}
+                      key={row.accountId}
                       email={row.email}
-                      full_name={row.full_name}
+                      full_name={row.fullName}
                       role={row.role}
-                      gender={row.gender === 0 ? "MALE" : "FEMALE"}
-                      phone_number={row.phone_number}
-                      avatarUrl={row.imageUrl}
+                      gender={{ 1: "Male", 0: "Female" }[row.gender]}
+                      phone_number={row.phoneNumber}
+                      avatarUrl={row.imageURL}
                       selected={selected.indexOf(row.email) !== -1}
                       handleClick={(event) => handleClick(event, row.email)}
                       handleEdit={() => handleOpenEditModal(row)}
@@ -297,12 +369,12 @@ export default function UserPage() {
           <TextField
             autoFocus
             margin="dense"
-            name="full_name"
+            name="fullName"
             label="Full Name"
             type="text"
             fullWidth
             variant="outlined"
-            value={newUser.full_name}
+            value={newUser.fullName}
             onChange={handleChangeNewUser}
           />
           <TextField
@@ -317,15 +389,25 @@ export default function UserPage() {
           />
           <TextField
             margin="dense"
-            name="phone_number"
+            name="password"
+            label="Password"
+            type="password"
+            fullWidth
+            variant="outlined"
+            value={newUser.password}
+            onChange={handleChangeNewUser}
+          />
+          <TextField
+            margin="dense"
+            name="phoneNumber"
             label="Phone Number"
             type="text"
             fullWidth
             variant="outlined"
-            value={newUser.phone_number}
+            value={newUser.phoneNumber}
             onChange={handleChangeNewUser}
           />
-          <TextField
+          {/* <TextField
             margin="dense"
             name="gender"
             label="Gender"
@@ -334,7 +416,22 @@ export default function UserPage() {
             variant="outlined"
             value={newUser.gender}
             onChange={handleChangeNewUser}
-          />
+          /> */}
+          <FormControl fullWidth sx={{ my: 2 }}>
+            <InputLabel id="demo-simple-select-label2">Gender</InputLabel>
+            <Select
+              labelId="demo-simple-select-label2"
+              value={newUser.gender}
+              name="gender" // Add this line
+              label="Gender"
+              onChange={(e) => {
+                handleChangeNewUser(e);
+              }}
+            >
+              <MenuItem value={1}>Male</MenuItem>
+              <MenuItem value={0}>Female</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             margin="dense"
             name="address"
@@ -362,12 +459,12 @@ export default function UserPage() {
           <TextField
             autoFocus
             margin="dense"
-            name="full_name"
+            name="fullName"
             label="Full Name"
             type="text"
             fullWidth
             variant="outlined"
-            value={editUser.full_name}
+            value={editUser.fullName}
             onChange={handleChangeEditUser}
           />
           <TextField
@@ -383,15 +480,15 @@ export default function UserPage() {
           />
           <TextField
             margin="dense"
-            name="phone_number"
+            name="phoneNumber"
             label="Phone Number"
             type="text"
             fullWidth
             variant="outlined"
-            value={editUser.phone_number}
+            value={editUser.phoneNumber}
             onChange={handleChangeEditUser}
           />
-          <TextField
+          {/* <TextField
             margin="dense"
             name="gender"
             label="Gender"
@@ -400,7 +497,23 @@ export default function UserPage() {
             variant="outlined"
             value={editUser.gender === 1 ? "FEMALE" : "MALE"}
             onChange={handleChangeEditUser}
-          />
+          /> */}
+          <FormControl fullWidth sx={{ my: 2 }}>
+            <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              value={editUser.gender}
+              name="gender" // Add this line
+              label="Gender"
+              onChange={(e) => {
+                handleChangeEditUser(e);
+              }}
+            >
+              <MenuItem value={1}>Male</MenuItem>
+              <MenuItem value={0}>Female</MenuItem>
+            </Select>
+          </FormControl>
+
           <TextField
             margin="dense"
             name="address"

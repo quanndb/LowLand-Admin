@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   Stack,
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-import { sizes } from "src/_mock/sizes";
+// import { sizes } from "src/_mock/sizes";
 import Iconify from "src/components/iconify";
 import Scrollbar from "src/components/scrollbar";
 import TableNoData from "../table-no-data";
@@ -24,8 +24,21 @@ import SizeTableHead from "../size-table-head";
 import TableEmptyRows from "../table-empty-rows";
 import SizeTableToolbar from "../size-table-toolbar";
 import { emptyRows, getComparator } from "../utils";
+import sizeAPI from "src/services/API/sizeAPI";
+import { toast } from "react-toastify";
 
 export default function SizeView() {
+  const [sizes, setSizes] = useState([]);
+  useEffect(() => {
+    sizeAPI
+      .getAll()
+      .then((res) => {
+        setSizes(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  }, []);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState("asc");
   const [selected, setSelected] = useState([]);
@@ -37,13 +50,13 @@ export default function SizeView() {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
 
   const [newsize, setNewsize] = useState({
-    name: "",
+    sizeName: "",
     description: "",
   });
 
   const [editsize, setEditsize] = useState({
-    id: null,
-    name: "",
+    productSizeId: null,
+    sizeName: "",
     description: "",
   });
 
@@ -91,7 +104,6 @@ export default function SizeView() {
     setRowsPerPage(parseInt(event.target.value, 10));
   };
 
-
   const handleOpenAddModal = () => {
     setOpenAddModal(true);
   };
@@ -106,6 +118,7 @@ export default function SizeView() {
   };
 
   const handleOpenDeleteModal = (size) => {
+    setEditsize(size);
     setOpenDeleteModal(true);
   };
 
@@ -117,7 +130,7 @@ export default function SizeView() {
     setOpenEditModal(false);
     setEditsize({
       id: null,
-      name: "",
+      sizeName: "",
       description: "",
     });
   };
@@ -131,15 +144,63 @@ export default function SizeView() {
   };
 
   const handleSubmitNewSize = () => {
-    setOpenAddModal(false);
+    sizeAPI
+      .update(newsize)
+      .then((res) => {
+        setSizes([...sizes, res]);
+        toast.success("Add new size successfully");
+      })
+      .catch((err) => {
+        toast.error(err);
+      })
+      .finally(() => {
+        setNewsize({
+          sizeName: "",
+          description: "",
+        });
+        setOpenAddModal(false);
+      });
   };
 
   const handleSubmitEditSize = () => {
-    setOpenEditModal(false);
+    sizeAPI
+      .update(editsize)
+      .then((res) => {
+        setSizes(
+          sizes.map((size) =>
+            size.productSizeId === res.productSizeId ? res : size
+          )
+        );
+        toast.success("Update size successfully");
+      })
+      .catch((err) => {
+        toast.error(err);
+      })
+      .finally(() => {
+        setEditsize({
+          productSizeId: null,
+          sizeName: "",
+          description: "",
+        });
+        setOpenEditModal(false);
+      });
   };
 
   const handleSubmitDeleteSize = () => {
-    setOpenDeleteModal(false);
+    sizeAPI
+      .delete(editsize.productSizeId)
+      .then((res) => {
+        setSizes(
+          sizes.filter((size) => size.productSizeId !== editsize.productSizeId)
+        );
+        toast.success("Delete size successfully");
+      })
+      .catch((err) => {
+        toast.error(err);
+      })
+      .finally(() => {
+        setOpenDeleteModal(false);
+      });
   };
 
   const dataSorted = sizes.slice().sort(getComparator(order, orderBy));
@@ -163,9 +224,7 @@ export default function SizeView() {
       </Stack>
 
       <Card>
-        <SizeTableToolbar
-          numSelected={selected.length}
-        />
+        <SizeTableToolbar numSelected={selected.length} />
 
         <Scrollbar>
           <TableContainer sx={{ overflow: "unset" }}>
@@ -178,7 +237,7 @@ export default function SizeView() {
                 onRequestSort={handleSort}
                 onSelectAllClick={handleSelectAllClick}
                 headLabel={[
-                  {id:"index", label:"STT"},
+                  { id: "index", label: "STT" },
                   { id: "name", label: "Size" },
                   { id: "description", label: "description" },
                   { id: "" },
@@ -190,11 +249,11 @@ export default function SizeView() {
                   .map((row, index) => (
                     <SizeTableRow
                       key={row.id}
-                      STT={String(index+=1)}
-                      name={row.name}
+                      STT={String((index += 1))}
+                      sizeName={row.sizeName}
                       description={row.description}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.name)}
+                      selected={selected.indexOf(row.sizeName) !== -1}
+                      handleClick={(event) => handleClick(event, row.sizeName)}
                       handleEdit={() => handleOpenEditModal(row)}
                       handleDelete={() => handleOpenDeleteModal(row)}
                     />
@@ -202,11 +261,7 @@ export default function SizeView() {
 
                 <TableEmptyRows
                   height={77}
-                  emptyRows={emptyRows(
-                    page,
-                    rowsPerPage,
-                    sizes.length
-                  )}
+                  emptyRows={emptyRows(page, rowsPerPage, sizes.length)}
                 />
 
                 {!dataSorted.length && <TableNoData />}
@@ -231,12 +286,12 @@ export default function SizeView() {
         <DialogContent>
           <TextField
             margin="dense"
-            name="name"
-            label="Name"
+            name="sizeName"
+            label="Size name"
             type="text"
             fullWidth
             variant="outlined"
-            value={newsize.name}
+            value={newsize.sizeName}
             onChange={handleChangeNewSize}
           />
           <TextField
@@ -266,12 +321,12 @@ export default function SizeView() {
           <TextField
             autoFocus
             margin="dense"
-            name="name"
-            label="Name"
+            name="sizeName"
+            label="Size name"
             type="text"
             fullWidth
             variant="outlined"
-            value={editsize.name}
+            value={editsize.sizeName}
             onChange={handleChangeEditSize}
           />
           <TextField
