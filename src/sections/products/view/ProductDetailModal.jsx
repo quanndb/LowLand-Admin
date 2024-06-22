@@ -11,39 +11,32 @@ import {
   Tab,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { sizes } from "src/_mock/sizes";
 
 const ProductDetailModal = ({ product, open, onClose }) => {
   if (!product) return null;
 
-  const {
-    images,
-    name,
-    originalPrices,
-    materials,
-    size,
-    description,
-  } = product;
+  const { images, name, originalPrices, materials, size, description } = product;
 
   const [editedName, setEditedName] = useState(name);
-  const [editedOriginalPrices, setEditedOriginalPrices] =
-    useState(originalPrices);
-  
-
+  const [editedOriginalPrices, setEditedOriginalPrices] = useState(originalPrices);
   const [editedDescription, setEditedDescription] = useState(description);
-
   const [editedMaterials, setEditedMaterials] = useState(materials || []);
   const [currentTab, setCurrentTab] = useState(0);
   const [newMaterialName, setNewMaterialName] = useState("");
   const [newMaterialValue, setNewMaterialValue] = useState("");
-  const [selectedSize, setSelectedSize] = useState(
-    size.length > 0 ? size[0] : null
-  );
+  const [selectedSize, setSelectedSize] = useState(size.length > 0 ? size[0] : null);
   const [editedSizes, setEditedSizes] = useState(size);
 
   const [newSizeName, setNewSizeName] = useState("");
   const [newSizePrice, setNewSizePrice] = useState("");
+
+  const [imageFile1, setImageFile1] = useState(null);
+  const [imageFile2, setImageFile2] = useState(null);
+  const [imagePreviewUrl1, setImagePreviewUrl1] = useState(images[0].imageUrl || "");
+  const [imagePreviewUrl2, setImagePreviewUrl2] = useState(images[1].imageUrl || "");
 
   useEffect(() => {
     setEditedName(name);
@@ -52,6 +45,8 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     setEditedMaterials(materials || []);
     setEditedSizes(size);
     setSelectedSize(size.length > 0 ? size[0] : null);
+    setImagePreviewUrl1(images[0].imageUrl || "");
+    setImagePreviewUrl2(images[1].imageUrl || "");
   }, [product]);
 
   const handleNameChange = (event) => {
@@ -140,7 +135,25 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     setEditedSizes(updatedSizes);
   };
 
+  const handleImageChange = (event, setImageFile, setImagePreviewUrl) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageFile(file);
+        setImagePreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = (setImageFile, setImagePreviewUrl) => {
+    setImageFile(null);
+    setImagePreviewUrl("");
+  };
+
   const handleSaveChanges = () => {
+    // Save changes logic here
     onClose();
   };
 
@@ -173,63 +186,141 @@ const ProductDetailModal = ({ product, open, onClose }) => {
           <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
             <DialogTitle>{name}</DialogTitle>
 
-            <img
-              src={images[0].imageUrl}
-              alt={name}
-              style={{
-                width: "250px",
-                height: "250px",
-                objectFit: "cover",
-                marginBottom: "10px",
-              }}
-            />
-            <img
-              src={images[1].imageUrl}
-              alt={name}
-              style={{
-                width: "250px",
-                height: "250px",
-                objectFit: "cover",
-                marginBottom: "10px",
-              }}
-            />
-            <TextField
-              fullWidth
-              label="Name"
-              variant="outlined"
-              value={editedName}
-              onChange={handleNameChange}
-              style={{ marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              label="Original Price"
-              variant="outlined"
-              value={editedOriginalPrices}
-              onChange={handleOriginalPricesChange}
-              style={{ marginBottom: "10px" }}
-            />
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              gap={2}
+              sx={{ m: 1 }}
+            >
+              <Box
+                onClick={() => document.getElementById("imageUpload1").click()}
+                sx={{
+                  width: "48%",
+                  height: 200,
+                  border: "2px dashed grey",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative",
+                  cursor: "pointer",
+                  backgroundImage: `url(${imagePreviewUrl1 || ""})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                {!imagePreviewUrl1 && <Typography variant="h4">+</Typography>}
+                {imagePreviewUrl1 && (
+                  <IconButton
+                    onClick={() =>
+                      handleRemoveImage(setImageFile1, setImagePreviewUrl1)
+                    }
+                    sx={{
+                      position: "absolute",
+                      top: -12,
+                      right: -12,
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "#dfdfdf",
+                      "&:hover": {
+                        backgroundColor: "#dfdfdf",
+                        opacity: 0.7,
+                      },
+                    }}
+                  >
+                    x
+                  </IconButton>
+                )}
+                <input
+                  type="file"
+                  id="imageUpload1"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) =>
+                    handleImageChange(e, setImageFile1, setImagePreviewUrl1)
+                  }
+                />
+              </Box>
+              <Box
+                onClick={() => document.getElementById("imageUpload2").click()}
+                sx={{
+                  width: "48%",
+                  height: 200,
+                  border: "2px dashed grey",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  position: "relative",
+                  cursor: "pointer",
+                  backgroundImage: `url(${imagePreviewUrl2 || ""})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              >
+                {!imagePreviewUrl2 && <Typography variant="h4">+</Typography>}
+                {imagePreviewUrl2 && (
+                  <IconButton
+                    onClick={() =>
+                      handleRemoveImage(setImageFile2, setImagePreviewUrl2)
+                    }
+                    sx={{
+                      position: "absolute",
+                      top: -12,
+                      right: -12,
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "#dfdfdf",
+                      "&:hover": {
+                        backgroundColor: "#dfdfdf",
+                        opacity: 0.7,
+                      },
+                    }}
+                  >
+                    x
+                  </IconButton>
+                )}
+                <input
+                  type="file"
+                  id="imageUpload2"
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  onChange={(e) =>
+                    handleImageChange(e, setImageFile2, setImagePreviewUrl2)
+                  }
+                />
+              </Box>
+            </Box>
 
-            {/* <TextField
-              fullWidth
-              label="Description"
-              variant="outlined"
-              value={editedSalePrices}
-              onChange={handleSalePricesChange}
-              style={{ marginBottom: "10px" }}
-            /> */}
+            <Box sx={{ p: 1 }}>
+              <TextField
+                fullWidth
+                label="Name"
+                value={editedName}
+                onChange={handleNameChange}
+              />
+            </Box>
 
-            <textarea
-              rows={4}
-              label="Description"
-              variant="outlined"
-              value={editedDescription}
-              onChange={handleDescriptionChange}
-              style={{ marginBottom: "10px", width: "100%" }}
-            />
+            <Box sx={{ p: 1 }}>
+              <TextField
+                fullWidth
+                label="Original Prices"
+                value={editedOriginalPrices}
+                onChange={handleOriginalPricesChange}
+              />
+            </Box>
+
+            <Box sx={{ p: 1 }}>
+              <TextField
+                fullWidth
+                label="Description"
+                value={editedDescription}
+                onChange={handleDescriptionChange}
+                multiline
+                rows={4}
+              />
+            </Box>
           </Box>
         )}
-        {currentTab === 1 && (
+         {currentTab === 1 && (
           <Box sx={{ overflowY: "auto", overflowX: "hidden"}}>
             <Typography variant="h6">Materials:</Typography>
             <ul style={{ padding: 0, listStyleType: "none" }}>
@@ -323,7 +414,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
             </Box>
           </Box>
         )}
-        {currentTab === 2 && (
+       {currentTab === 2 && (
           <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
             <Typography variant="h6">Sizes:</Typography>
             <Box style={{ display: "flex", gap: 1, marginBottom: "10px" }}>
@@ -406,15 +497,12 @@ const ProductDetailModal = ({ product, open, onClose }) => {
             </Box>
           </Box>
         )}
+        <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+          <Button variant="contained" color="primary" onClick={handleSaveChanges}>
+            Save Changes
+          </Button>
+        </Box>
       </DialogContent>
-      <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end", mb:"10px" , mr:"20px"}}>
-        <Button onClick={onClose} style={{ marginRight: "10px" }}>
-          Close
-        </Button>
-        <Button onClick={handleSaveChanges} variant="contained" color="primary">
-          Save Changes
-        </Button>
-      </Box>
     </Dialog>
   );
 };
