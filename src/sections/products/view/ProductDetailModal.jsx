@@ -38,6 +38,9 @@ const ProductDetailModal = ({ product, open, onClose }) => {
   const [imagePreviewUrl1, setImagePreviewUrl1] = useState(images[0].imageUrl || "");
   const [imagePreviewUrl2, setImagePreviewUrl2] = useState(images[1].imageUrl || "");
 
+  const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
+
   useEffect(() => {
     setEditedName(name);
     setEditedOriginalPrices(originalPrices);
@@ -118,9 +121,24 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     const updatedSizes = [...editedSizes];
     updatedSizes.splice(index, 1);
     setEditedSizes(updatedSizes);
-    if (selectedSize && selectedSize.id === editedSizes[index].id) {
-      setSelectedSize(updatedSizes.length > 0 ? updatedSizes[0] : null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (imageToDeleteIndex !== null) {
+      if (imageToDeleteIndex === 0) {
+        setImagePreviewUrl1("");
+        setImageFile1(null);
+      } else if (imageToDeleteIndex === 1) {
+        setImagePreviewUrl2("");
+        setImageFile2(null);
+      }
+      setImageToDeleteIndex(null);
+      setDeleteConfirmDialogOpen(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmDialogOpen(false);
   };
 
   const handleSizeNameChange = (index, newName) => {
@@ -147,9 +165,9 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     }
   };
 
-  const handleRemoveImage = (setImageFile, setImagePreviewUrl) => {
-    setImageFile(null);
-    setImagePreviewUrl("");
+  const handleRemoveImage = (index) => {
+    setImageToDeleteIndex(index); // Set the index of the image to delete
+    setDeleteConfirmDialogOpen(true); // Open the delete confirmation dialog
   };
 
   const handleSaveChanges = () => {
@@ -182,6 +200,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
           <Tab label="Materials" />
           <Tab label="Sizes" />
         </Tabs>
+
         {currentTab === 0 && (
           <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
             <DialogTitle>{name}</DialogTitle>
@@ -193,7 +212,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
               sx={{ m: 1 }}
             >
               <Box
-                onClick={() => document.getElementById("imageUpload1").click()}
+                onClick={() => imagePreviewUrl1 === "" && document.getElementById("imageUpload1").click()}
                 sx={{
                   width: "48%",
                   height: 200,
@@ -202,7 +221,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                   justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
-                  cursor: "pointer",
+                  cursor: imagePreviewUrl1 === "" ? "pointer" : "default",
                   backgroundImage: `url(${imagePreviewUrl1 || ""})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -211,9 +230,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                 {!imagePreviewUrl1 && <Typography variant="h4">+</Typography>}
                 {imagePreviewUrl1 && (
                   <IconButton
-                    onClick={() =>
-                      handleRemoveImage(setImageFile1, setImagePreviewUrl1)
-                    }
+                    onClick={() => handleRemoveImage(0)}
                     sx={{
                       position: "absolute",
                       top: -12,
@@ -241,7 +258,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                 />
               </Box>
               <Box
-                onClick={() => document.getElementById("imageUpload2").click()}
+                onClick={() => imagePreviewUrl2 === "" && document.getElementById("imageUpload2").click()}
                 sx={{
                   width: "48%",
                   height: 200,
@@ -250,7 +267,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                   justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
-                  cursor: "pointer",
+                  cursor: imagePreviewUrl2 === "" ? "pointer" : "default",
                   backgroundImage: `url(${imagePreviewUrl2 || ""})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -259,9 +276,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                 {!imagePreviewUrl2 && <Typography variant="h4">+</Typography>}
                 {imagePreviewUrl2 && (
                   <IconButton
-                    onClick={() =>
-                      handleRemoveImage(setImageFile2, setImagePreviewUrl2)
-                    }
+                    onClick={() => handleRemoveImage(1)}
                     sx={{
                       position: "absolute",
                       top: -12,
@@ -290,140 +305,106 @@ const ProductDetailModal = ({ product, open, onClose }) => {
               </Box>
             </Box>
 
-            <Box sx={{ p: 1 }}>
-              <TextField
-                fullWidth
-                label="Name"
-                value={editedName}
-                onChange={handleNameChange}
-              />
-            </Box>
+            <TextField
+              label="Product Name"
+              value={editedName}
+              onChange={handleNameChange}
+              fullWidth
+              margin="normal"
+            />
 
-            <Box sx={{ p: 1 }}>
-              <TextField
-                fullWidth
-                label="Original Prices"
-                value={editedOriginalPrices}
-                onChange={handleOriginalPricesChange}
-              />
-            </Box>
+            <TextField
+              label="Original Prices"
+              value={editedOriginalPrices}
+              onChange={handleOriginalPricesChange}
+              fullWidth
+              margin="normal"
+            />
 
-            <Box sx={{ p: 1 }}>
-              <TextField
-                fullWidth
-                label="Description"
-                value={editedDescription}
-                onChange={handleDescriptionChange}
-                multiline
-                rows={4}
-              />
-            </Box>
+            <TextField
+              label="Description"
+              value={editedDescription}
+              onChange={handleDescriptionChange}
+              fullWidth
+              multiline
+              rows={4}
+              margin="normal"
+            />
           </Box>
         )}
-         {currentTab === 1 && (
-          <Box sx={{ overflowY: "auto", overflowX: "hidden"}}>
-            <Typography variant="h6">Materials:</Typography>
-            <ul style={{ padding: 0, listStyleType: "none" }}>
-              {materials.map((material, index) => (
-                <li
+
+        {currentTab === 1 && (
+          <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
+            <Box sx={{ m: 2 }}>
+              {editedMaterials.map((material, index) => (
+                <Box
                   key={index}
-                  style={{ display: "flex", gap: 1, marginBottom: "5px" }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    marginBottom: 2,
+                  }}
                 >
                   <TextField
-                    fullWidth
-                    label="Name"
-                    value={material.materialName || ""}
-                    variant="outlined"
+                    label="Material Name"
+                    value={material.name}
                     onChange={(e) =>
-                      handleMaterialChange(index, "materialName", e.target.value)
+                      handleMaterialChange(index, "name", e.target.value)
                     }
+                    fullWidth
                   />
                   <TextField
-                    fullWidth
-                    label="Quantity"
-                    value={material.quantity || ""}
+                    label="Material Value"
+                    value={material.value}
                     onChange={(e) =>
-                      handleMaterialChange(index, "quantity", e.target.value)
+                      handleMaterialChange(index, "value", e.target.value)
                     }
-                    variant="outlined"
-                  />
-                  <TextField
                     fullWidth
-                    label="Unit"
-                    value={material.unit || ""}
-                    disabled
-                    variant="outlined"
                   />
                   <Button
-                    onClick={() => handleDeleteMaterial(index)}
                     variant="contained"
-                    color="error"
+                    color="secondary"
+                    onClick={() => handleDeleteMaterial(index)}
                   >
                     Delete
                   </Button>
-                </li>
+                </Box>
               ))}
-              {newMaterialName && (
-                <li style={{ display: "flex", gap: 1, marginBottom: "5px" }}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    value={newMaterialName}
-                    variant="outlined"
-                    disabled
-                  />
-                  <TextField
-                    fullWidth
-                    label="Quantity"
-                    value={newMaterialValue}
-                    variant="outlined"
-                    disabled
-                  />
-                </li>
-              )}
-            </ul>
-            <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-              <TextField
-                fullWidth
-                label="Material Name"
-                variant="outlined"
-                value={newMaterialName}
-                onChange={(e) => setNewMaterialName(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                label="Quantity"
-                variant="outlined"
-                value={newMaterialValue}
-                onChange={(e) => setNewMaterialValue(e.target.value)}
-              />
-              <TextField
-                fullWidth
-                label="Unit"
-                variant="outlined"
-                value={newMaterialValue}
-                onChange={(e) => setNewMaterialValue(e.target.value)}
-              />
-              <Button
-                onClick={handleAddMaterial}
-                variant="contained"
-                color="secondary"
-              >
-                Add
-              </Button>
+
+              <Box sx={{ display: "flex", gap: 2, marginBottom: 2 }}>
+                <TextField
+                  label="New Material Name"
+                  value={newMaterialName}
+                  onChange={(e) => setNewMaterialName(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="New Material Value"
+                  value={newMaterialValue}
+                  onChange={(e) => setNewMaterialValue(e.target.value)}
+                  fullWidth
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddMaterial}
+                >
+                  Add
+                </Button>
+              </Box>
             </Box>
           </Box>
         )}
-       {currentTab === 2 && (
+
+        {currentTab === 2 && (
           <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
-            <Typography variant="h6">Sizes:</Typography>
-            <Box style={{ display: "flex", gap: 1, marginBottom: "10px" }}>
+            <Box sx={{ m: 2 }}>
               <Select
+                label="Size"
                 value={selectedSize ? selectedSize.id : ""}
                 onChange={handleSizeChange}
-                variant="outlined"
                 fullWidth
-                style={{ marginBottom: "10px" }}
               >
                 {sizes.map((sz) => (
                   <MenuItem key={sz.id} value={sz.id}>
@@ -431,78 +412,104 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                   </MenuItem>
                 ))}
               </Select>
+              {selectedSize && (
+                <Box sx={{ marginTop: 2 }}>
+                  <Typography variant="h6">Selected Size:</Typography>
+                  <Typography>Name: {selectedSize.name}</Typography>
+                  <Typography>Price: {selectedSize.price}</Typography>
+                </Box>
+              )}
 
-              <TextField
-                label="Price"
-                type="number"
-                variant="outlined"
-                value={newSizePrice}
-
-                // value={
-                //   sizes.find((size) => size.sizeName === selectedSizes)?.price || ""
-                // }
-
-                onChange={(e) => setNewSizePrice(e.target.value)}
-              />
-              <Button
-                onClick={handleAddSize}
-                variant="contained"
-                color="secondary"
-              >
-                Add
-              </Button>
-            </Box>
-            
-            <Box>
-            <ul style={{ padding: 0, listStyleType: "none" }}>
-              {editedSizes.map((sz, index) => (
-                <li
-                  key={index}
-                  style={{
-                    marginBottom: "15px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <TextField
-                    label="Size Name"
-                    variant="outlined"
-                    value={sz.name}
-                    onChange={(e) =>
-                      handleSizeNameChange(index, e.target.value)
-                    }
-                    style={{ marginRight: "10px" }}
-                  />
-                  <TextField
-                    label="Price"
-                    type="number"
-                    variant="outlined"
-                    value={sz.price}
-                    onChange={(e) =>
-                      handleSizePriceChange(index, e.target.value)
-                    }
-                    style={{ marginRight: "10px" }}
-                  />
-                  <Button
-                    onClick={() => handleDeleteSize(index)}
-                    variant="contained"
-                    color="error"
-                    style={{ marginLeft: "10px" }}
+              <Box sx={{ marginTop: 4 }}>
+                <Typography variant="h6">Sizes:</Typography>
+                {editedSizes.map((sz, index) => (
+                  <Box
+                    key={sz.id}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      marginBottom: 2,
+                    }}
                   >
-                    Delete
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                    <TextField
+                      label="Size Name"
+                      value={sz.name}
+                      onChange={(e) =>
+                        handleSizeNameChange(index, e.target.value)
+                      }
+                      fullWidth
+                    />
+                    <TextField
+                      label="Size Price"
+                      value={sz.price}
+                      onChange={(e) =>
+                        handleSizePriceChange(index, e.target.value)
+                      }
+                      fullWidth
+                    />
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={() => handleDeleteSize(index)}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
+                ))}
+              </Box>
+
+              <Box sx={{ display: "flex", gap: 2, marginTop: 4 }}>
+                <TextField
+                  label="New Size Name"
+                  value={newSizeName}
+                  onChange={(e) => setNewSizeName(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="New Size Price"
+                  value={newSizePrice}
+                  onChange={(e) => setNewSizePrice(e.target.value)}
+                  fullWidth
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleAddSize}
+                >
+                  Add
+                </Button>
+              </Box>
             </Box>
           </Box>
         )}
-        <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+
+        <Box sx={{ marginTop: "auto", display: "flex", justifyContent: "space-between" }}>
           <Button variant="contained" color="primary" onClick={handleSaveChanges}>
             Save Changes
           </Button>
+          <Button variant="outlined" color="secondary" onClick={onClose}>
+            Cancel
+          </Button>
         </Box>
       </DialogContent>
+
+      <Dialog open={deleteConfirmDialogOpen} onClose={handleCancelDelete}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this image?
+          </Typography>
+          <Box sx={{ marginTop: 2, display: "flex", justifyContent: "space-between" }}>
+            <Button variant="contained" color="primary" onClick={handleConfirmDelete}>
+              Yes
+            </Button>
+            <Button variant="outlined" color="secondary" onClick={handleCancelDelete}>
+              No
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };

@@ -14,7 +14,6 @@ import {
   IconButton,
 } from "@mui/material";
 
-// Assuming `materials` is imported from somewhere
 import { materials } from "src/_mock/materials";
 import { sizes } from "src/_mock/sizes";
 
@@ -33,6 +32,8 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   const [imageFile2, setImageFile2] = useState(null);
   const [imagePreviewUrl1, setImagePreviewUrl1] = useState("");
   const [imagePreviewUrl2, setImagePreviewUrl2] = useState("");
+  const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = useState(false);
+  const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
 
   const handleAddProduct = () => {
     const newProduct = {
@@ -112,9 +113,27 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
     }
   };
 
-  const handleRemoveImage = (setImageFile, setImagePreviewUrl) => {
-    setImageFile(null);
-    setImagePreviewUrl("");
+  const handleRemoveImage = (index) => {
+    setImageToDeleteIndex(index); 
+    setDeleteConfirmDialogOpen(true); 
+  };
+
+  const handleConfirmDelete = () => {
+    if (imageToDeleteIndex !== null) {
+      if (imageToDeleteIndex === 0) {
+        setImagePreviewUrl1("");
+        setImageFile1(null);
+      } else if (imageToDeleteIndex === 1) {
+        setImagePreviewUrl2("");
+        setImageFile2(null);
+      }
+      setImageToDeleteIndex(null);
+      setDeleteConfirmDialogOpen(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteConfirmDialogOpen(false);
   };
 
   return (
@@ -139,7 +158,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
               sx={{ m: 1 }}
             >
               <Box
-                onClick={() => document.getElementById("imageUpload1").click()}
+                onClick={() => imagePreviewUrl1 === "" && document.getElementById("imageUpload1").click()}
                 sx={{
                   width: "48%",
                   height: 200,
@@ -148,7 +167,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
-                  cursor: "pointer",
+                  cursor: imagePreviewUrl1 === "" ? "pointer" : "default",
                   backgroundImage: `url(${imagePreviewUrl1 || ""})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -157,9 +176,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                 {!imagePreviewUrl1 && <Typography variant="h4">+</Typography>}
                 {imagePreviewUrl1 && (
                   <IconButton
-                    onClick={() =>
-                      handleRemoveImage(setImageFile1, setImagePreviewUrl1)
-                    }
+                    onClick={() => handleRemoveImage(0)}
                     sx={{
                       position: "absolute",
                       top: -12,
@@ -187,7 +204,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                 />
               </Box>
               <Box
-                onClick={() => document.getElementById("imageUpload2").click()}
+                onClick={() => imagePreviewUrl2 === "" && document.getElementById("imageUpload2").click()}
                 sx={{
                   width: "48%",
                   height: 200,
@@ -196,7 +213,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   justifyContent: "center",
                   alignItems: "center",
                   position: "relative",
-                  cursor: "pointer",
+                  cursor: imagePreviewUrl2 === "" ? "pointer" : "default",
                   backgroundImage: `url(${imagePreviewUrl2 || ""})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -205,9 +222,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                 {!imagePreviewUrl2 && <Typography variant="h4">+</Typography>}
                 {imagePreviewUrl2 && (
                   <IconButton
-                    onClick={() =>
-                      handleRemoveImage(setImageFile2, setImagePreviewUrl2)
-                    }
+                    onClick={() => handleRemoveImage(1)}
                     sx={{
                       position: "absolute",
                       top: -12,
@@ -235,30 +250,27 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                 />
               </Box>
             </Box>
-            <TextField
-              fullWidth
-              label="Product Name"
-              variant="outlined"
-              value={newProductName}
-              onChange={(e) => setNewProductName(e.target.value)}
-              style={{ marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              label="Original Price"
-              variant="outlined"
-              value={newProductPrice}
-              onChange={(e) => setNewProductPrice(e.target.value)}
-              style={{ marginBottom: "10px" }}
-            />
-            <TextField
-              fullWidth
-              label="Description"
-              variant="outlined"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              style={{ marginBottom: "10px" }}
-            />
+            <Dialog
+              open={deleteConfirmDialogOpen}
+              onClose={handleCancelDelete}
+              aria-labelledby="alert-dialog-title"
+              aria-describedby="alert-dialog-description"
+            >
+              <DialogTitle>Confirm Delete</DialogTitle>
+              <DialogContent>
+                <Typography variant="body1">
+                  Are you sure you want to delete this image?
+                </Typography>
+              </DialogContent>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", p: 2 }}>
+                <Button onClick={handleCancelDelete} color="primary">
+                  Cancel
+                </Button>
+                <Button onClick={handleConfirmDelete} color="primary" autoFocus>
+                  Delete
+                </Button>
+              </Box>
+            </Dialog>
           </Box>
         )}
         {currentTab === 1 && (
