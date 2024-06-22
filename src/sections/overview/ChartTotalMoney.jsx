@@ -9,13 +9,13 @@ import { DatePicker } from "@mui/lab";
 
 // ----------------------------------------------------------------------
 
-export default function AppWebsiteVisits({
+export default function ChartTotalMoney({
   title,
   subheader,
   chart,
   ...other
 }) {
-  const { labels, colors, series, options, forMat } = chart;
+  const { labels, colors, series, options} = chart;
 
   const chartOptions = useChart({
     colors,
@@ -37,7 +37,7 @@ export default function AppWebsiteVisits({
       y: {
         formatter: (value) => {
           if (typeof value !== "undefined") {
-            return `${value.toLocaleString()} Product`;
+            return `${value.toLocaleString()} VNĐ`;
           }
           return value;
         },
@@ -64,7 +64,7 @@ export default function AppWebsiteVisits({
   );
 }
 
-AppWebsiteVisits.propTypes = {
+ChartTotalMoney.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,

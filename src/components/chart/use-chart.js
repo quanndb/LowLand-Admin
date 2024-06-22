@@ -127,7 +127,7 @@ export default function useChart(options) {
       show: true,
       fontSize: 13,
       position: 'top',
-      horizontalAlign: 'right',
+      horizontalAlign: 'center',
       markers: {
         radius: 12,
       },

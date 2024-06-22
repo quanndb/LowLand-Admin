@@ -17,11 +17,59 @@ import AppTrafficBySite from "../app-traffic-by-site";
 import AppCurrentSubject from "../app-current-subject";
 import AppConversionRates from "../app-conversion-rates";
 import { user } from "src/redux/selectors/UserSelector";
+import chartAPI from "src/services/API/chartAPI";
+import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { DatePicker } from "@mui/lab";
+import { Box } from "@mui/material";
+import { string } from "prop-types";
+import ChartLowSelling from "../ChartLowSelling";
+import ChartTotalMoney from "../ChartTotalMoney";
 
 // ----------------------------------------------------------------------
 
 export default function AppView() {
   const userData = useSelector(user);
+
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    chartAPI
+      .getToltalMoneyDayinMonth(6,2024)
+      .then((res) => {
+        setData(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  },[]);
+
+
+  const [dataChart2, setDataForChart2] = useState([]);
+  useEffect(() => {
+    chartAPI
+      .getTopBestSaleProduct(5)
+      .then((res) => {
+        setDataForChart2(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  },[]);
+  console.log(dataChart2);
+
+  const [dataChart3, setDataForChart3] = useState([]);
+  useEffect(() => {
+    chartAPI
+      .getTopLowSaleProduct(5)
+      .then((res) => {
+        setDataForChart3(res);
+      })
+      .catch((err) => {
+        toast.error(err);
+      });
+  },[]);
+  console.log(dataChart3);
+  
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
@@ -29,7 +77,7 @@ export default function AppView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
+        {/* <Grid xs={12} sm={6} md={3}>
           <AppWidgetSummary
             title="Weekly Sales"
             total={714000}
@@ -67,65 +115,63 @@ export default function AppView() {
               <img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />
             }
           />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={8}>
-          <AppWebsiteVisits
-            title="Website Visits"
-            subheader="(+43%) than last year"
+        </Grid> */}
+        
+        <Grid xs={12} md={12} lg={12}>
+          <ChartTotalMoney
+            title="Monthly Revenue"
+            subheader="Daily Revenue for the Month"
             chart={{
-              labels: [
-                "01/01/2003",
-                "02/01/2003",
-                "03/01/2003",
-                "04/01/2003",
-                "05/01/2003",
-                "06/01/2003",
-                "07/01/2003",
-                "08/01/2003",
-                "09/01/2003",
-                "10/01/2003",
-                "11/01/2003",
-              ],
+              labels: data.map(item=> item.dayInMonth.toString()),
               series: [
                 {
-                  name: "Team A",
+                  name: "Revenue",
                   type: "column",
                   fill: "solid",
-                  data: [23, 11, 22, 27, 13, 22, 37, 21, 44, 22, 30],
-                },
-                {
-                  name: "Team B",
-                  type: "area",
-                  fill: "gradient",
-                  data: [44, 55, 41, 67, 22, 43, 21, 41, 56, 27, 43],
-                },
-                {
-                  name: "Team C",
-                  type: "line",
-                  fill: "solid",
-                  data: [30, 25, 36, 30, 45, 35, 64, 52, 59, 36, 39],
-                },
+                  data: data.map(item=> item.totalMoney),
+                }
               ],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppCurrentVisits
-            title="Current Visits"
+        <Grid xs={12} md={6}>
+          <AppWebsiteVisits
+            title="Top Best-Selling Product"
+            //subheader="Daily Revenue for the Month"
             chart={{
+              labels: dataChart2.map(item=> item.productName),
               series: [
-                { label: "America", value: 4344 },
-                { label: "Asia", value: 5435 },
-                { label: "Europe", value: 1443 },
-                { label: "Africa", value: 4443 },
+                {
+                  name: "Total",
+                  type: "column",
+                  fill: "solid",
+                  data: dataChart2.map(item=> item.quantity),
+                }
               ],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid xs={12} md={6}>
+          <ChartLowSelling
+            title="Top Low-Selling Product"
+            //subheader="Daily Revenue for the Month"
+            chart={{
+              labels: dataChart3.map(item=> item.productName),
+              series: [
+                {
+                  name: "Revenue",
+                  type: "column",
+                  fill: "solid",
+                  data: dataChart3.map(item=> item.quantity),
+                }
+              ],
+            }}
+          />
+        </Grid>
+
+        {/* <Grid xs={12} md={6} lg={8}>
           <AppConversionRates
             title="Conversion Rates"
             subheader="(+43%) than last year"
@@ -253,7 +299,7 @@ export default function AppView() {
               { id: "5", name: "Sprint Showcase" },
             ]}
           />
-        </Grid>
+        </Grid> */}
       </Grid>
     </Container>
   );

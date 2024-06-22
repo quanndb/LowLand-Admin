@@ -9,7 +9,7 @@ import { DatePicker } from "@mui/lab";
 
 // ----------------------------------------------------------------------
 
-export default function AppWebsiteVisits({
+export default function ChartLowSelling({
   title,
   subheader,
   chart,
@@ -64,7 +64,7 @@ export default function AppWebsiteVisits({
   );
 }
 
-AppWebsiteVisits.propTypes = {
+ChartLowSelling.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
