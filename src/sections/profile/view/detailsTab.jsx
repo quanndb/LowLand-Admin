@@ -164,13 +164,13 @@ const DetailsTab = ({ user }) => {
             <strong>Full Name:</strong> {user.fullName}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
-            <strong>Mobile:</strong> {user.mobile}
+            <strong>Phone Number:</strong> {user.phoneNumber}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
             <strong>Email:</strong> {user.email}
           </Typography>
           <Typography variant="body2" sx={{ mt: 1 }}>
-            <strong>Location:</strong> {user.location}
+            <strong>Location:</strong> {user.address}
           </Typography>
           <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
             <Typography variant="body2" sx={{ mr: 1 }}>

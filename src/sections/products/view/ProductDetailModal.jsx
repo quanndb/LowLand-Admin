@@ -1,41 +1,63 @@
-
-import { useState } from "react";
-import {Box, Button, DialogTitle, DialogContent, Dialog, TextField, Typography, IconButton} from "@mui/material";
-
-
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Button,
+  DialogTitle,
+  DialogContent,
+  Dialog,
+  TextField,
+  Typography,
+  Tabs,
+  Tab,
+  Select,
+  MenuItem,
+  TextareaAutosize,
+} from "@mui/material";
+import { sizes } from "src/_mock/sizes";
 const ProductDetailModal = ({ product, open, onClose }) => {
-  if (!product) return null; 
+  if (!product) return null;
+
   const {
     imageURL,
     name,
-    title,
     originalPrices,
     salePrices,
-    detail,
     materials,
     size,
+    description,
   } = product;
 
-  const [editedTitle, setEditedTitle] = useState(title);
-  const [editedOriginalPrices, setEditedOriginalPrices] = useState(
-    originalPrices
-  );
+  const [editedName, setEditedName] = useState(name);
+  const [editedOriginalPrices, setEditedOriginalPrices] =
+    useState(originalPrices);
   const [editedSalePrices, setEditedSalePrices] = useState(salePrices);
-  const [editedDetail, setEditedDetail] = useState(detail);
 
-  const [editedMaterials, setEditedMaterials] = useState(materials);
-  const [newMaterial, setNewMaterial] = useState("");
+  const [editedDescription, setEditedDescription] = useState(description);
 
-  const [editedSize, setEditedSize] = useState(size);
+  const [editedMaterials, setEditedMaterials] = useState(materials || []);
+  const [currentTab, setCurrentTab] = useState(0);
+  const [newMaterialName, setNewMaterialName] = useState("");
+  const [newMaterialValue, setNewMaterialValue] = useState("");
+  const [selectedSize, setSelectedSize] = useState(
+    size.length > 0 ? size[0] : null
+  );
+  const [editedSizes, setEditedSizes] = useState(size);
+
   const [newSizeName, setNewSizeName] = useState("");
   const [newSizePrice, setNewSizePrice] = useState("");
 
-  const handleImageError = (event) => {
-    event.target.src = "/static/images/product2.jpg";
-  };
+  useEffect(() => {
+    setEditedName(name);
+    setEditedOriginalPrices(originalPrices);
+    setEditedSalePrices(salePrices);
+    setEditedDescription(description);
+    setEditedMaterials(materials || []);
+    setEditedSizes(size);
+    setSelectedSize(size.length > 0 ? size[0] : null);
+  }, [product]);
 
-  const handleTitleChange = (event) => {
-    setEditedTitle(event.target.value);
+  const handleNameChange = (event) => {
+    setEditedName(event.target.value);
   };
 
   const handleOriginalPricesChange = (event) => {
@@ -45,22 +67,17 @@ const ProductDetailModal = ({ product, open, onClose }) => {
   const handleSalePricesChange = (event) => {
     setEditedSalePrices(event.target.value);
   };
-
-  const handleDetailChange = (event) => {
-    setEditedDetail(event.target.value);
+  const handleDescriptionChange = (event) => {
+    setEditedDescription(event.target.value);
   };
 
-  const handleMaterialChange = (index, value) => {
+  const handleMaterialChange = (index, field, value) => {
     const updatedMaterials = [...editedMaterials];
-    updatedMaterials[index] = value;
+    updatedMaterials[index] = {
+      ...updatedMaterials[index],
+      [field]: value,
+    };
     setEditedMaterials(updatedMaterials);
-  };
-
-  const handleAddMaterial = () => {
-    if (newMaterial.trim() !== "") {
-      setEditedMaterials([...editedMaterials, newMaterial]);
-      setNewMaterial("");
-    }
   };
 
   const handleDeleteMaterial = (index) => {
@@ -69,201 +86,311 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     setEditedMaterials(updatedMaterials);
   };
 
-  const handleSizeNameChange = (index, value) => {
-    const updatedSize = [...editedSize];
-    updatedSize[index].name = value;
-    setEditedSize(updatedSize);
+  const handleAddMaterial = () => {
+    if (newMaterialName.trim() && newMaterialValue.trim()) {
+      const newMaterial = {
+        name: newMaterialName,
+        value: newMaterialValue,
+      };
+      setEditedMaterials([...editedMaterials, newMaterial]);
+      setNewMaterialName("");
+      setNewMaterialValue("");
+    }
   };
 
-  const handleSizePriceChange = (index, value) => {
-    const updatedSize = [...editedSize];
-    updatedSize[index].price = value;
-    setEditedSize(updatedSize);
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+  };
+
+  const handleSizeChange = (event) => {
+    const newSizeId = event.target.value;
+    const newSize = sizes.find((sz) => sz.id === newSizeId);
+    setSelectedSize(newSize || null);
   };
 
   const handleAddSize = () => {
-    if (newSizeName.trim() !== "" && newSizePrice.trim() !== "") {
-      const newId = editedSize.length > 0 ? editedSize[editedSize.length - 1].id + 1 : 1;
+    if (newSizeName.trim() && newSizePrice.trim()) {
+      const newId =
+        editedSizes.length > 0 ? editedSizes[editedSizes.length - 1].id + 1 : 1;
       const newSize = {
         id: newId,
         name: newSizeName,
-        price: newSizePrice,
+        price: parseFloat(newSizePrice),
       };
-      setEditedSize([...editedSize, newSize]);
+      const newSizes = [...editedSizes, newSize];
+      setEditedSizes(newSizes);
       setNewSizeName("");
       setNewSizePrice("");
     }
   };
 
   const handleDeleteSize = (index) => {
-    const updatedSize = [...editedSize];
-    updatedSize.splice(index, 1);
-    setEditedSize(updatedSize);
+    const updatedSizes = [...editedSizes];
+    updatedSizes.splice(index, 1);
+    setEditedSizes(updatedSizes);
+    if (selectedSize && selectedSize.id === editedSizes[index].id) {
+      setSelectedSize(updatedSizes.length > 0 ? updatedSizes[0] : null);
+    }
+  };
+
+  const handleSizeNameChange = (index, newName) => {
+    const updatedSizes = [...editedSizes];
+    updatedSizes[index] = { ...updatedSizes[index], name: newName };
+    setEditedSizes(updatedSizes);
+  };
+
+  const handleSizePriceChange = (index, newPrice) => {
+    const updatedSizes = [...editedSizes];
+    updatedSizes[index] = { ...updatedSizes[index], price: newPrice };
+    setEditedSizes(updatedSizes);
   };
 
   const handleSaveChanges = () => {
-    // Implement logic to save changes here if needed
-    onClose(); // Close the modal after saving changes
+    onClose();
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{name}</DialogTitle>
-      <DialogContent>
-        <Box>
-          <img
-            src={imageURL}
-            alt={name}
-            style={{
-              width: "250px",
-              height: "250px",
-              objectFit: "cover",
-              marginBottom: "10px",
-            }}
-            onError={handleImageError}
-          />
-          <TextField
-            fullWidth
-            label="Title"
-            variant="outlined"
-            value={editedTitle}
-            onChange={handleTitleChange}
-            style={{ marginBottom: "10px" }}
-          />
-        </Box>
-        <TextField
-          fullWidth
-          label="Original Price"
-          variant="outlined"
-          value={editedOriginalPrices}
-          onChange={handleOriginalPricesChange}
-          style={{ marginBottom: "10px" }}
-        />
-        <TextField
-          fullWidth
-          label="Sale Price"
-          variant="outlined"
-          value={editedSalePrices}
-          onChange={handleSalePricesChange}
-          style={{ marginBottom: "10px" }}
-        />
-        <TextField
-          fullWidth
-          label="Detail"
-          variant="outlined"
-          multiline
-          rows={4}
-          value={editedDetail}
-          onChange={handleDetailChange}
-          style={{ marginBottom: "10px" }}
-        />
+    <Dialog
+      open={open}
+      onClose={onClose}
+      sx={{ overflowY: "auto", overflowX: "hidden" }}
+    >
+      <DialogContent
+        sx={{
+          width: 600,
+          height: 700,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <DialogTitle>Edit Product</DialogTitle>
 
-        <Typography variant="h6">Materials:</Typography>
-        <ul>
-          {editedMaterials.map((material, index) => (
-            <li key={index}>
+        <Tabs
+          value={currentTab}
+          onChange={handleTabChange}
+          aria-label="Product Details Tabs"
+        >
+          <Tab label="Details" />
+          <Tab label="Materials" />
+          <Tab label="Sizes" />
+        </Tabs>
+        {currentTab === 0 && (
+          <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
+            <DialogTitle>{name}</DialogTitle>
+
+            <img
+              src={imageURL}
+              alt={name}
+              style={{
+                width: "250px",
+                height: "250px",
+                objectFit: "cover",
+                marginBottom: "10px",
+              }}
+            />
+            <TextField
+              fullWidth
+              label="Name"
+              variant="outlined"
+              value={editedName}
+              onChange={handleNameChange}
+              style={{ marginBottom: "10px" }}
+            />
+            <TextField
+              fullWidth
+              label="Original Price"
+              variant="outlined"
+              value={editedOriginalPrices}
+              onChange={handleOriginalPricesChange}
+              style={{ marginBottom: "10px" }}
+            />
+
+            {/* <TextField
+              fullWidth
+              label="Description"
+              variant="outlined"
+              value={editedSalePrices}
+              onChange={handleSalePricesChange}
+              style={{ marginBottom: "10px" }}
+            /> */}
+
+            <textarea
+              rows={4}
+              label="Description"
+              variant="outlined"
+              value={editedDescription}
+              onChange={handleDescriptionChange}
+              style={{ marginBottom: "10px", width: "100%" }}
+            />
+          </Box>
+        )}
+        {currentTab === 1 && (
+          <Box sx={{ overflowY: "auto", overflowX: "hidden"}}>
+            <Typography variant="h6">Materials:</Typography>
+            <ul style={{ padding: 0, listStyleType: "none" }}>
+              {editedMaterials.map((material, index) => (
+                <li
+                  key={index}
+                  style={{ display: "flex", gap: 1, marginBottom: "5px" }}
+                >
+                  <TextField
+                    fullWidth
+                    label="Name"
+                    value={material.name || ""}
+                    variant="outlined"
+                    onChange={(e) =>
+                      handleMaterialChange(index, "name", e.target.value)
+                    }
+                  />
+                  <TextField
+                    fullWidth
+                    label="Value"
+                    value={material.value || ""}
+                    onChange={(e) =>
+                      handleMaterialChange(index, "value", e.target.value)
+                    }
+                    variant="outlined"
+                  />
+                  <Button
+                    onClick={() => handleDeleteMaterial(index)}
+                    variant="contained"
+                    color="error"
+                  >
+                    Delete
+                  </Button>
+                </li>
+              ))}
+              {newMaterialName && (
+                <li style={{ display: "flex", gap: 1, marginBottom: "5px" }}>
+                  <TextField
+                    fullWidth
+                    label="Name"
+                    value={newMaterialName}
+                    variant="outlined"
+                    disabled
+                  />
+                  <TextField
+                    fullWidth
+                    label="Value"
+                    value={newMaterialValue}
+                    variant="outlined"
+                    disabled
+                  />
+                </li>
+              )}
+            </ul>
+            <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
               <TextField
                 fullWidth
-                value={material}
-                onChange={(e) => handleMaterialChange(index, e.target.value)}
+                label="Material Name"
                 variant="outlined"
-                style={{ marginBottom: "5px" }}
+                value={newMaterialName}
+                onChange={(e) => setNewMaterialName(e.target.value)}
               />
-              <IconButton
-                aria-label="delete"
-                onClick={() => handleDeleteMaterial(index)}
-                size="small"
-                style={{ marginLeft: "10px" }}
+              <TextField
+                fullWidth
+                label="Material Value"
+                variant="outlined"
+                value={newMaterialValue}
+                onChange={(e) => setNewMaterialValue(e.target.value)}
+              />
+              <Button
+                onClick={handleAddMaterial}
+                variant="contained"
+                color="secondary"
               >
-                {/* <DeleteIcon /> */}
-              </IconButton>
-            </li>
-          ))}
-          <li>
-            <TextField
-              fullWidth
-              label="New Material"
-              variant="outlined"
-              value={newMaterial}
-              onChange={(e) => setNewMaterial(e.target.value)}
-              style={{ marginBottom: "5px" }}
-            />
-            <IconButton
-              aria-label="add"
-              onClick={handleAddMaterial}
-              size="small"
-              style={{ marginLeft: "10px" }}
-            >
-              {/* <AddIcon /> */}
-            </IconButton>
-          </li>
-        </ul>
-
-        <Typography variant="h6">Sizes:</Typography>
-        <ul>
-          {editedSize.map((s, index) => (
-            <li key={s.id}>
-              <TextField
-                fullWidth
-                label="Size Name"
+                Add
+              </Button>
+            </Box>
+          </Box>
+        )}
+        {currentTab === 2 && (
+          <Box sx={{ overflowY: "auto", overflowX: "hidden" }}>
+            <Typography variant="h6">Sizes:</Typography>
+            <Box style={{ display: "flex", gap: 1, marginBottom: "10px" }}>
+              <Select
+                value={selectedSize ? selectedSize.id : ""}
+                onChange={handleSizeChange}
                 variant="outlined"
-                value={s.name}
-                onChange={(e) => handleSizeNameChange(index, e.target.value)}
-                style={{ marginBottom: "5px" }}
-              />
-              <TextField
                 fullWidth
-                label="Size Price"
-                variant="outlined"
-                value={s.price}
-                onChange={(e) => handleSizePriceChange(index, e.target.value)}
-                style={{ marginBottom: "5px", marginLeft: "10px" }}
-              />
-              <IconButton
-                aria-label="delete"
-                onClick={() => handleDeleteSize(index)}
-                size="small"
-                style={{ marginLeft: "10px" }}
+                style={{ marginBottom: "10px" }}
               >
-                {/* <DeleteIcon /> */}
-              </IconButton>
-            </li>
-          ))}
-          <li>
-            <TextField
-              fullWidth
-              label="New Size Name"
-              variant="outlined"
-              value={newSizeName}
-              onChange={(e) => setNewSizeName(e.target.value)}
-              style={{ marginBottom: "5px" }}
-            />
-            <TextField
-              fullWidth
-              label="New Size Price"
-              variant="outlined"
-              value={newSizePrice}
-              onChange={(e) => setNewSizePrice(e.target.value)}
-              style={{ marginBottom: "5px", marginLeft: "10px" }}
-            />
-            <IconButton
-              aria-label="add"
-              onClick={handleAddSize}
-              size="small"
-              style={{ marginLeft: "10px" }}
-            >
-              {/* <AddIcon /> */}
-            </IconButton>
-          </li>
-        </ul>
+                {sizes.map((sz) => (
+                  <MenuItem key={sz.id} value={sz.id}>
+                    {sz.name}
+                  </MenuItem>
+                ))}
+              </Select>
 
+              <TextField
+                label="Price"
+                type="number"
+                variant="outlined"
+                value={newSizePrice}
+                onChange={(e) => setNewSizePrice(e.target.value)}
+              />
+              <Button
+                onClick={handleAddSize}
+                variant="contained"
+                color="secondary"
+              >
+                Add
+              </Button>
+            </Box>
+            
+            <Box>
+            <ul style={{ padding: 0, listStyleType: "none" }}>
+              {editedSizes.map((sz, index) => (
+                <li
+                  key={index}
+                  style={{
+                    marginBottom: "15px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <TextField
+                    label="Size Name"
+                    variant="outlined"
+                    value={sz.name}
+                    onChange={(e) =>
+                      handleSizeNameChange(index, e.target.value)
+                    }
+                    style={{ marginRight: "10px" }}
+                  />
+                  <TextField
+                    label="Price"
+                    type="number"
+                    variant="outlined"
+                    value={sz.price}
+                    onChange={(e) =>
+                      handleSizePriceChange(index, e.target.value)
+                    }
+                    style={{ marginRight: "10px" }}
+                  />
+                  <Button
+                    onClick={() => handleDeleteSize(index)}
+                    variant="contained"
+                    color="error"
+                    style={{ marginLeft: "10px" }}
+                  >
+                    Delete
+                  </Button>
+                </li>
+              ))}
+            </ul>
+            </Box>
+          </Box>
+        )}
+      </DialogContent>
+      <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end", mb:"10px" }}>
+        <Button onClick={onClose} style={{ marginRight: "10px" }}>
+          Close
+        </Button>
         <Button onClick={handleSaveChanges} variant="contained" color="primary">
           Save Changes
         </Button>
-        <Button onClick={onClose} style={{ marginLeft: "10px" }}>
-          Close
-        </Button>
-      </DialogContent>
+      </Box>
     </Dialog>
   );
 };
