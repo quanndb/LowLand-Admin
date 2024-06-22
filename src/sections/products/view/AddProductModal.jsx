@@ -1,5 +1,3 @@
-// import {CloseIcon} from "@mui/icons-material";
-
 import { useState } from "react";
 import {
   Box,
@@ -15,6 +13,9 @@ import {
   MenuItem,
   IconButton,
 } from "@mui/material";
+
+// Assuming `materials` is imported from somewhere
+import { materials } from "src/_mock/materials";
 import { sizes } from "src/_mock/sizes";
 
 const AddProductModal = ({ open, onClose, onAddProduct }) => {
@@ -22,12 +23,12 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   const [newProductPrice, setNewProductPrice] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [currentTab, setCurrentTab] = useState(0);
-  const [newMaterialName, setNewMaterialName] = useState("");
+  const [selectedMaterial, setSelectedMaterial] = useState("");
   const [newMaterialValue, setNewMaterialValue] = useState("");
   const [newMaterials, setNewMaterials] = useState([]);
   const [selectedSize, setSelectedSize] = useState("");
   const [newSizePrice, setNewSizePrice] = useState("");
-  const [newSizes, setNewSizes] = useState([]);
+  const [newSizes] = useState([]);
   const [imageFile1, setImageFile1] = useState(null);
   const [imageFile2, setImageFile2] = useState(null);
   const [imagePreviewUrl1, setImagePreviewUrl1] = useState("");
@@ -37,10 +38,10 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
     const newProduct = {
       name: newProductName,
       originalPrices: newProductPrice,
-      salePrices: newDescription,
+      description: newDescription,
       materials: newMaterials,
       sizes: newSizes,
-      images: [imagePreviewUrl1, imagePreviewUrl2].filter(Boolean), // Filter out empty URLs
+      images: [imagePreviewUrl1, imagePreviewUrl2].filter(Boolean),
     };
 
     onAddProduct(newProduct);
@@ -50,7 +51,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
     setNewProductPrice("");
     setNewDescription("");
     setNewMaterials([]);
-    setNewSizes([]);
+    setSelectedMaterial("");
     setSelectedSize("");
     setNewSizePrice("");
     setImageFile1(null);
@@ -65,14 +66,21 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
   };
 
   const handleAddMaterial = () => {
-    if (newMaterialName.trim() && newMaterialValue.trim()) {
-      const newMaterial = {
-        name: newMaterialName,
-        value: newMaterialValue,
-      };
-      setNewMaterials([...newMaterials, newMaterial]);
-      setNewMaterialName("");
-      setNewMaterialValue("");
+    if (selectedMaterial && newMaterialValue.trim()) {
+      // Find the selected material object
+      const selectedMaterialObject = materials.find(
+        (material) => material.materialName === selectedMaterial
+      );
+
+      if (selectedMaterialObject) {
+        const newMaterial = {
+          materialName: selectedMaterialObject.materialName,
+          quantity: newMaterialValue,
+          unit: selectedMaterialObject.unit,
+        };
+        setNewMaterials([...newMaterials, newMaterial]);
+        setNewMaterialValue("");
+      }
     }
   };
 
@@ -154,12 +162,17 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                     }
                     sx={{
                       position: "absolute",
-                      top: 5,
-                      right: 5,
-                      backgroundColor: "white",
+                      top: -12,
+                      right: -12,
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "#dfdfdf",
+                      "&:hover": {
+                        backgroundColor: "#dfdfdf",
+                        opacity: 0.7,
+                      },
                     }}
                   >
-                    {/* <CloseIcon /> */}
                     x
                   </IconButton>
                 )}
@@ -197,12 +210,18 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                     }
                     sx={{
                       position: "absolute",
-                      top: 5,
-                      right: 5,
-                      backgroundColor: "white",
+                      top: -12,
+                      right: -12,
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "#dfdfdf",
+                      "&:hover": {
+                        backgroundColor: "#dfdfdf",
+                        opacity: 0.7,
+                      },
                     }}
                   >
-                    {/* <CloseIcon /> */}x
+                    x
                   </IconButton>
                 )}
                 <input
@@ -251,34 +270,61 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   key={index}
                   style={{ display: "flex", gap: 10, marginBottom: "10px" }}
                 >
+                  <TextField 
+                  fullWidth
+                  variant="outlined"
+                  disabled
+                  value={material.materialName}
+                  ></TextField>
                   <TextField
                     fullWidth
-                    label="Material Name"
-                    value={material.name}
+                    label="Quantity"
+                    value={material.quantity}
                     variant="outlined"
+                    onChange={(e) => {
+                      const updatedMaterials = [...newMaterials];
+                      updatedMaterials[index].quantity = e.target.value;
+                      setNewMaterials(updatedMaterials);
+                    }}
                   />
                   <TextField
                     fullWidth
-                    label="Material Value"
-                    value={material.value}
+                    label="Unit"
+                    value={material.unit}
                     variant="outlined"
+                    disabled
                   />
                 </li>
               ))}
               <li style={{ display: "flex", gap: 10, marginBottom: "10px" }}>
-                <TextField
-                  fullWidth
-                  label="Material Name"
+                <Select
+                  value={selectedMaterial}
+                  onChange={(e) => setSelectedMaterial(e.target.value)}
                   variant="outlined"
-                  value={newMaterialName}
-                  onChange={(e) => setNewMaterialName(e.target.value)}
-                />
+                  fullWidth
+                >
+                  {materials.map((material) => (
+                    <MenuItem key={material.materialId} value={material.materialName}>
+                      {material.materialName}
+                    </MenuItem>
+                  ))}
+                </Select>
+
                 <TextField
                   fullWidth
-                  label="Material Value"
+                  label="Quantity"
                   variant="outlined"
                   value={newMaterialValue}
                   onChange={(e) => setNewMaterialValue(e.target.value)}
+                />
+                <TextField
+                  fullWidth
+                  label="Unit"
+                  variant="outlined"
+                  value={
+                    materials.find((material) => material.materialName === selectedMaterial)?.unit || ""
+                  }
+                  disabled
                 />
                 <Button
                   onClick={handleAddMaterial}
@@ -334,7 +380,7 @@ const AddProductModal = ({ open, onClose, onAddProduct }) => {
                   label="Price"
                   type="number"
                   variant="outlined"
-                  value={newSizePrice}
+                  value={sizes.find((size) => size.id === selectedSize)?.price || ""}
                   onChange={(e) => setNewSizePrice(e.target.value)}
                 />
                 <Button

@@ -15,7 +15,6 @@ import {
   DialogTitle,
   TextField,
 } from "@mui/material";
-// import { sizes } from "src/_mock/sizes";
 import Iconify from "src/components/iconify";
 import Scrollbar from "src/components/scrollbar";
 import TableNoData from "../table-no-data";
@@ -52,12 +51,14 @@ export default function SizeView() {
   const [newsize, setNewsize] = useState({
     sizeName: "",
     description: "",
+    price: "", // Thêm price vào state
   });
 
   const [editsize, setEditsize] = useState({
     productSizeId: null,
     sizeName: "",
     description: "",
+    price: "", // Thêm price vào state
   });
 
   const handleSort = (event, id) => {
@@ -132,6 +133,7 @@ export default function SizeView() {
       id: null,
       sizeName: "",
       description: "",
+      price: "", // Reset price
     });
   };
 
@@ -157,6 +159,7 @@ export default function SizeView() {
         setNewsize({
           sizeName: "",
           description: "",
+          price:""
         });
         setOpenAddModal(false);
       });
@@ -181,6 +184,7 @@ export default function SizeView() {
           productSizeId: null,
           sizeName: "",
           description: "",
+          price:""
         });
         setOpenEditModal(false);
       });
@@ -207,12 +211,7 @@ export default function SizeView() {
 
   return (
     <Container>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="flex-end"
-        mb={5}
-      >
+      <Stack direction="row" alignItems="center" justifyContent="flex-end" mb={5}>
         <Button
           variant="contained"
           color="inherit"
@@ -239,7 +238,8 @@ export default function SizeView() {
                 headLabel={[
                   { id: "index", label: "STT" },
                   { id: "name", label: "Size" },
-                  { id: "description", label: "description" },
+                  { id: "price", label: "Price" }, 
+                  { id: "description", label: "Description" },
                   { id: "" },
                 ]}
               />
@@ -251,6 +251,7 @@ export default function SizeView() {
                       key={row.id}
                       STT={String((index += 1))}
                       sizeName={row.sizeName}
+                      price = {row.price}
                       description={row.description}
                       selected={selected.indexOf(row.sizeName) !== -1}
                       handleClick={(event) => handleClick(event, row.sizeName)}
@@ -296,14 +297,25 @@ export default function SizeView() {
           />
           <TextField
             margin="dense"
+            name="price"
+            label="Price"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={newsize.price}
+            onChange={handleChangeNewSize}
+          />
+          <TextField
+            margin="dense"
             name="description"
-            label="description"
+            label="Description"
             type="text"
             fullWidth
             variant="outlined"
             value={newsize.description}
             onChange={handleChangeNewSize}
           />
+          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAddModal}>Cancel</Button>
@@ -331,14 +343,25 @@ export default function SizeView() {
           />
           <TextField
             margin="dense"
+            name="price"
+            label="Price"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={editsize.price}
+            onChange={handleChangeEditSize}
+          />
+          <TextField
+            margin="dense"
             name="description"
-            label="description"
+            label="Description"
             type="text"
             fullWidth
             variant="outlined"
             value={editsize.description}
             onChange={handleChangeEditSize}
           />
+          
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEditModal}>Cancel</Button>

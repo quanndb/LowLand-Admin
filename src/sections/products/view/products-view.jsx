@@ -18,13 +18,17 @@ export default function ProductsView() {
     setSelectedProduct({
       ...product,
       materials: product.materials.map((material) => ({
-        name: material.name,
-        value: material.value,
-        unit: '',
+        materialName: material.materialName,
+        quantity: material.quantity,
+        unit: material.unit,
       })),
       size: product.size.map((item) => ({
         name: item.name,
         price: item.price
+      })),
+      images: product.images.map((item) => ({
+        name: item.name,
+        imageUrl: item.imageUrl
       })),
     });
     setModalOpen(true);
@@ -35,7 +39,6 @@ export default function ProductsView() {
   };
 
   const handleAddProduct = (newProduct) => {
-    // For demonstration, we'll just log the new product
     console.log('Adding new product:', newProduct);
   };
 
@@ -85,7 +88,6 @@ export default function ProductsView() {
 
       <ProductDetailModal product={selectedProduct} open={modalOpen} onClose={handleCloseModal} />
       
-      {/* Render AddProductModal */}
       <AddProductModal open={addModalOpen} onClose={handleCloseAddModal} onAddProduct={handleAddProduct} />
     </Container>
   );

@@ -11,17 +11,16 @@ import {
   Tab,
   Select,
   MenuItem,
-  TextareaAutosize,
 } from "@mui/material";
 import { sizes } from "src/_mock/sizes";
+
 const ProductDetailModal = ({ product, open, onClose }) => {
   if (!product) return null;
 
   const {
-    imageURL,
+    images,
     name,
     originalPrices,
-    salePrices,
     materials,
     size,
     description,
@@ -30,7 +29,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
   const [editedName, setEditedName] = useState(name);
   const [editedOriginalPrices, setEditedOriginalPrices] =
     useState(originalPrices);
-  const [editedSalePrices, setEditedSalePrices] = useState(salePrices);
+  
 
   const [editedDescription, setEditedDescription] = useState(description);
 
@@ -49,7 +48,6 @@ const ProductDetailModal = ({ product, open, onClose }) => {
   useEffect(() => {
     setEditedName(name);
     setEditedOriginalPrices(originalPrices);
-    setEditedSalePrices(salePrices);
     setEditedDescription(description);
     setEditedMaterials(materials || []);
     setEditedSizes(size);
@@ -64,9 +62,6 @@ const ProductDetailModal = ({ product, open, onClose }) => {
     setEditedOriginalPrices(event.target.value);
   };
 
-  const handleSalePricesChange = (event) => {
-    setEditedSalePrices(event.target.value);
-  };
   const handleDescriptionChange = (event) => {
     setEditedDescription(event.target.value);
   };
@@ -179,7 +174,17 @@ const ProductDetailModal = ({ product, open, onClose }) => {
             <DialogTitle>{name}</DialogTitle>
 
             <img
-              src={imageURL}
+              src={images[0].imageUrl}
+              alt={name}
+              style={{
+                width: "250px",
+                height: "250px",
+                objectFit: "cover",
+                marginBottom: "10px",
+              }}
+            />
+            <img
+              src={images[1].imageUrl}
               alt={name}
               style={{
                 width: "250px",
@@ -228,7 +233,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
           <Box sx={{ overflowY: "auto", overflowX: "hidden"}}>
             <Typography variant="h6">Materials:</Typography>
             <ul style={{ padding: 0, listStyleType: "none" }}>
-              {editedMaterials.map((material, index) => (
+              {materials.map((material, index) => (
                 <li
                   key={index}
                   style={{ display: "flex", gap: 1, marginBottom: "5px" }}
@@ -236,19 +241,26 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                   <TextField
                     fullWidth
                     label="Name"
-                    value={material.name || ""}
+                    value={material.materialName || ""}
                     variant="outlined"
                     onChange={(e) =>
-                      handleMaterialChange(index, "name", e.target.value)
+                      handleMaterialChange(index, "materialName", e.target.value)
                     }
                   />
                   <TextField
                     fullWidth
-                    label="Value"
-                    value={material.value || ""}
+                    label="Quantity"
+                    value={material.quantity || ""}
                     onChange={(e) =>
-                      handleMaterialChange(index, "value", e.target.value)
+                      handleMaterialChange(index, "quantity", e.target.value)
                     }
+                    variant="outlined"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Unit"
+                    value={material.unit || ""}
+                    disabled
                     variant="outlined"
                   />
                   <Button
@@ -271,7 +283,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                   />
                   <TextField
                     fullWidth
-                    label="Value"
+                    label="Quantity"
                     value={newMaterialValue}
                     variant="outlined"
                     disabled
@@ -289,7 +301,14 @@ const ProductDetailModal = ({ product, open, onClose }) => {
               />
               <TextField
                 fullWidth
-                label="Material Value"
+                label="Quantity"
+                variant="outlined"
+                value={newMaterialValue}
+                onChange={(e) => setNewMaterialValue(e.target.value)}
+              />
+              <TextField
+                fullWidth
+                label="Unit"
                 variant="outlined"
                 value={newMaterialValue}
                 onChange={(e) => setNewMaterialValue(e.target.value)}
@@ -327,6 +346,11 @@ const ProductDetailModal = ({ product, open, onClose }) => {
                 type="number"
                 variant="outlined"
                 value={newSizePrice}
+
+                // value={
+                //   sizes.find((size) => size.sizeName === selectedSizes)?.price || ""
+                // }
+
                 onChange={(e) => setNewSizePrice(e.target.value)}
               />
               <Button
@@ -383,7 +407,7 @@ const ProductDetailModal = ({ product, open, onClose }) => {
           </Box>
         )}
       </DialogContent>
-      <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end", mb:"10px" }}>
+      <Box sx={{ mt: "auto", display: "flex", justifyContent: "flex-end", mb:"10px" , mr:"20px"}}>
         <Button onClick={onClose} style={{ marginRight: "10px" }}>
           Close
         </Button>

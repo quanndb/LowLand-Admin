@@ -1,14 +1,13 @@
 // import PropTypes from "prop-types";
 import {Box, Link, Card, Stack, Typography} from "@mui/material";
 import { fCurrency } from "src/utils/format-number";
-import Label from "src/components/label";
 
 export default function ShopProductCard({product, onClick }) {
   return (
     <>
         <Card key={product.id} onClick={() => onClick(product)}>
           <Box sx={{ pt: "100%", position: "relative" }}>
-            {product.isSale && (
+            {/* {product.isSale && (
               <Label
                 variant="filled"
                 color="error"
@@ -22,11 +21,11 @@ export default function ShopProductCard({product, onClick }) {
               >
                 Sale
               </Label>
-            )}
+            )} */}
             <Box
               component="img"
               alt={product.name}
-              src={product.imageURL}
+              src={product.images[0].imageUrl}
               sx={{
                 top: 0,
                 width: 1,

@@ -50,6 +50,11 @@ const navConfig = [
     path: "/material",
     icon: icon("ic_import"),
   },
+  {
+    title: "importStock",
+    path: "/importStock",
+    icon: icon("ic_import"),
+  },
   // {
   //   title: "Not found",
   //   path: "/404",
