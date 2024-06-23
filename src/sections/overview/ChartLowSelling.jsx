@@ -5,7 +5,6 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 
 import Chart, { useChart } from "src/components/chart";
-import { DatePicker } from "@mui/lab";
 
 // ----------------------------------------------------------------------
 

@@ -12,17 +12,16 @@ import Iconify from "src/components/iconify";
 
 export default function UserTableRow({
   selected,
-  materialName,
-  quantity,
+  description,
+  importStockCode,
   STT,
-  minQuantity,
-  unit,
+  supplierName,
+  import_date,
   handleClick,
   handleEdit,
   handleDelete,
 }) {
   const [open, setOpen] = useState(null);
-  const [isWarning, setIsWarning] = useState(quantity <= minQuantity);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -41,24 +40,18 @@ export default function UserTableRow({
     handleDelete();
     handleCloseMenu();
   };
-
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={isWarning ? { bgcolor: "error.light"
-        // , "&:hover":{
-        //   bgcolor: "error.light",
-        //   opacity: .7
-        // }
-       } : {}}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox disableRipple checked={selected} onChange={handleClick} />
         </TableCell>
         <TableCell>{STT}</TableCell>
-        <TableCell>{materialName}</TableCell>
-        <TableCell>{quantity}</TableCell>
-        <TableCell>{minQuantity}</TableCell>
-        <TableCell>{unit}</TableCell>
+        <TableCell>{importStockCode}</TableCell>
+        <TableCell>{supplierName}</TableCell>
 
+        <TableCell>{description}</TableCell>
+        <TableCell>{import_date}</TableCell>
         <TableCell align="right">
           <IconButton onClick={handleOpenMenu}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -78,13 +71,13 @@ export default function UserTableRow({
       >
         <MenuItem onClick={onEditClick}>
           <Iconify icon="eva:edit-fill" sx={{ mr: 2 }} />
-          Edit
+          Open
         </MenuItem>
 
-        <MenuItem onClick={onDeleteClick} sx={{ color: "error.main" }}>
+        {/* <MenuItem onClick={onDeleteClick} sx={{ color: "error.main" }}>
           <Iconify icon="eva:trash-2-outline" sx={{ mr: 2 }} />
           Delete
-        </MenuItem>
+        </MenuItem> */}
       </Popover>
     </>
   );
@@ -92,10 +85,10 @@ export default function UserTableRow({
 
 UserTableRow.propTypes = {
   STT: PropTypes.string,
-  materialName: PropTypes.string,
-  minQuantity: PropTypes.any,
-  quantity: PropTypes.any,
-  unit: PropTypes.any,
+  importStockCode: PropTypes.string,
+  import_date: PropTypes.string,
+  supplierName: PropTypes.string,
+  description: PropTypes.any,
   handleClick: PropTypes.func,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func,

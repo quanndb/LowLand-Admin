@@ -5,9 +5,6 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 
 import Chart, { useChart } from "src/components/chart";
-import { DatePicker } from "@mui/lab";
-
-// ----------------------------------------------------------------------
 
 export default function ChartTotalMoney({
   title,
@@ -15,7 +12,7 @@ export default function ChartTotalMoney({
   chart,
   ...other
 }) {
-  const { labels, colors, series, options} = chart;
+  const { labels, colors, series, options } = chart;
 
   const chartOptions = useChart({
     colors,
@@ -46,9 +43,23 @@ export default function ChartTotalMoney({
     ...options,
   });
 
+  // Tính tổng các giá trị trong series
+  const totalValue = series.reduce((total, seriesItem) => {
+    const sum = seriesItem.data.reduce((sum, dataItem) => sum + dataItem, 0);
+    return total + sum;
+  }, 0);
+
   return (
     <Card {...other}>
-      <CardHeader title={title} subheader={subheader} />
+      <CardHeader
+        title={title}
+        subheader={`${subheader}`}
+        action={
+          <Box component="span" sx={{ fontWeight: "bold" }}>
+            Revenue : {totalValue.toLocaleString()} VNĐ
+          </Box>
+        }
+      />
 
       <Box sx={{ p: 3, pb: 1 }}>
         <Chart
