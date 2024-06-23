@@ -1,13 +1,13 @@
 // import PropTypes from "prop-types";
-import {Box, Link, Card, Stack, Typography} from "@mui/material";
+import { Box, Link, Card, Stack, Typography } from "@mui/material";
 import { fCurrency } from "src/utils/format-number";
 
-export default function ShopProductCard({product, onClick }) {
+export default function ShopProductCard({ product, onClick }) {
   return (
     <>
-        <Card key={product.id} onClick={() => onClick(product)}>
-          <Box sx={{ pt: "100%", position: "relative" }}>
-            {/* {product.isSale && (
+      <Card key={product.id} onClick={() => onClick(product)}>
+        <Box sx={{ pt: "100%", position: "relative" }}>
+          {/* {product.isSale && (
               <Label
                 variant="filled"
                 color="error"
@@ -22,48 +22,46 @@ export default function ShopProductCard({product, onClick }) {
                 Sale
               </Label>
             )} */}
-            <Box
-              component="img"
-              alt={product.name}
-              src={product.images[0].imageUrl}
-              sx={{
-                top: 0,
-                width: 1,
-                height: 1,
-                objectFit: "cover",
-                position: "absolute",
-              }}
-            />
-          </Box>
+          <Box
+            component="img"
+            alt={product.productName}
+            src={product.imageUrl}
+            sx={{
+              top: 0,
+              width: 1,
+              height: 1,
+              objectFit: "cover",
+              position: "absolute",
+            }}
+          />
+        </Box>
 
-          <Stack spacing={2} sx={{ p: 3 }}>
-            <Link color="inherit" underline="hover" variant="subtitle2" noWrap>
-              {product.name}
-            </Link>
+        <Stack spacing={2} sx={{ p: 3 }}>
+          <Link color="inherit" underline="hover" variant="subtitle2" noWrap>
+            {product.productName}
+          </Link>
 
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="subtitle1">
-                <Typography
-                  component="span"
-                  variant="body1"
-                  sx={{
-                    color: "text.disabled",
-                    textDecoration: "line-through",
-                  }}
-                >
-                  {product.isSale && fCurrency(product.salePrices)}
-                </Typography>
-                &nbsp;
-                {fCurrency(product.originalPrices)}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Typography variant="subtitle1">
+              <Typography
+                component="span"
+                variant="body1"
+                sx={{
+                  color: "text.disabled",
+                  textDecoration: "line-through",
+                }}
+              >
+                {product.active && fCurrency(product.price)}
               </Typography>
-            </Stack>
+              {fCurrency(product.price)} VNĐ
+            </Typography>
           </Stack>
-        </Card>
+        </Stack>
+      </Card>
     </>
   );
 }
-

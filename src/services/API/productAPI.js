@@ -1,9 +1,9 @@
 import axios from "src/services";
 
-const authAPI = {
+const productAPI = {
   getAll: () => {
     const url = "/Product/GetAll?ProductId=0&inputRow=0";
-    return axios.get(url, params);
+    return axios.get(url);
   },
   getById: (params) => {
     const url = "/Product/GetAll?ProductId=" + params + "&inputRow=0";
@@ -17,6 +17,10 @@ const authAPI = {
     const url = "/Product/Delete?id=" + params;
     return axios.get(url, params);
   },
+  getDetails: (params) => {
+    const url = "/ProductDetail/GetAllByProductId?ProductId=" + params;
+    return axios.get(url, params);
+  },
 };
 
-export default authAPI;
+export default productAPI;

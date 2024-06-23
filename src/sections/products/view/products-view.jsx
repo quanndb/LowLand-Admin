@@ -1,11 +1,28 @@
-import { useState } from 'react';
-import { Box, Pagination, Typography, Grid, Container, Button } from '@mui/material';
-import ProductCard from '../product-card';
-import ProductDetailModal from './ProductDetailModal';
-import AddProductModal from './AddProductModal'; 
-import { sp } from 'src/_mock/sp';
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Pagination,
+  Typography,
+  Grid,
+  Container,
+  Button,
+} from "@mui/material";
+import ProductCard from "../product-card";
+import ProductDetailModal from "./ProductDetailModal";
+import AddProductModal from "./AddProductModal";
+import productAPI from "src/services/API/productAPI";
 
 export default function ProductsView() {
+  const [sp, setSp] = useState([]);
+
+  useEffect(() => {
+    productAPI
+      .getAll()
+      .then((res) => {
+        setSp(res);
+      })
+      .catch((error) => toast.error(error || "Failed to fetch products"));
+  }, []);
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -15,22 +32,30 @@ export default function ProductsView() {
   };
 
   const handleProductClick = (product) => {
-    setSelectedProduct({
-      ...product,
-      materials: product.materials.map((material) => ({
-        materialName: material.materialName,
-        quantity: material.quantity,
-        unit: material.unit,
-      })),
-      size: product.size.map((item) => ({
-        name: item.name,
-        price: item.price
-      })),
-      images: product.images.map((item) => ({
-        name: item.name,
-        imageUrl: item.imageUrl
-      })),
-    });
+    productAPI
+      .getDetails(product.productId)
+      .then((res) => {
+        setSelectedProduct(res);
+      })
+      .catch((error) => {
+        toast.error(error || "Failed to fetch product details");
+      });
+    // setSelectedProduct({
+    //   ...product,
+    //   materials: product.materials.map((material) => ({
+    //     materialName: material.materialName,
+    //     quantity: material.quantity,
+    //     unit: material.unit,
+    //   })),
+    //   size: product.size.map((item) => ({
+    //     name: item.name,
+    //     price: item.price,
+    //   })),
+    //   images: product.images.map((item) => ({
+    //     name: item.name,
+    //     imageUrl: item.imageUrl,
+    //   })),
+    // });
     setModalOpen(true);
   };
 
@@ -39,7 +64,7 @@ export default function ProductsView() {
   };
 
   const handleAddProduct = (newProduct) => {
-    console.log('Adding new product:', newProduct);
+    console.log("Adding new product:", newProduct);
   };
 
   const handleOpenAddModal = () => {
@@ -61,21 +86,28 @@ export default function ProductsView() {
         Products
       </Typography>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 3 }}>
-        <Button variant="contained" color="primary" onClick={handleOpenAddModal}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleOpenAddModal}
+        >
           Add Product
         </Button>
       </Box>
 
       <Grid container spacing={3}>
         {currentProducts.map((product) => (
-          <Grid key={product.id} item xs={12} sm={6} md={3}>
-            <ProductCard product={product} onClick={() => handleProductClick(product)} />
+          <Grid key={product.productId} item xs={12} sm={6} md={3}>
+            <ProductCard
+              product={product}
+              onClick={() => handleProductClick(product)}
+            />
           </Grid>
         ))}
       </Grid>
 
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
         <Pagination
           count={Math.ceil(sp.length / productsPerPage)}
           page={page}
@@ -86,9 +118,19 @@ export default function ProductsView() {
         />
       </Box>
 
-      <ProductDetailModal product={selectedProduct} open={modalOpen} onClose={handleCloseModal} />
-      
-      <AddProductModal open={addModalOpen} onClose={handleCloseAddModal} onAddProduct={handleAddProduct} />
+      <ProductDetailModal
+        setSp={setSp}
+        product={selectedProduct}
+        open={modalOpen}
+        onClose={handleCloseModal}
+      />
+
+      <AddProductModal
+        setSp={setSp}
+        open={addModalOpen}
+        onClose={handleCloseAddModal}
+        onAddProduct={handleAddProduct}
+      />
     </Container>
   );
 }
