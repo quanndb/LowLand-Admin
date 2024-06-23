@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
@@ -9,7 +10,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import { useRouter } from "../../../routes/hooks";
-import { account } from "../../../_mock/account";
+import { user } from "src/redux/selectors/UserSelector";
+import UserManagerSlice from "src/redux/slices/UserManagerSlice";
 
 // ----------------------------------------------------------------------
 
@@ -17,20 +19,24 @@ const MENU_OPTIONS = [
   {
     label: "Home",
     icon: "eva:home-fill",
+    linkTo: "/dashboard",
   },
   {
     label: "Profile",
     icon: "eva:person-fill",
+    linkTo: "/profile",
   },
-  {
-    label: "Settings",
-    icon: "eva:settings-2-fill",
-  },
+  // {
+  //   label: "Settings",
+  //   icon: "eva:settings-2-fill",
+  // },
 ];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
+  const dispatch = useDispatch();
+  const account = useSelector(user);
   const [open, setOpen] = useState(null);
 
   const router = useRouter();
@@ -43,10 +49,13 @@ export default function AccountPopover() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    router.push("/login");
+    dispatch(UserManagerSlice.actions.removeUser());
   };
 
+  const handleMenuClick = (linkTo) => {
+    router.push(linkTo);
+    handleClose();
+  };
   return (
     <>
       <IconButton
@@ -62,15 +71,15 @@ export default function AccountPopover() {
         }}
       >
         <Avatar
-          src={account.photoURL}
-          alt={account.displayName}
+          src={account.imageURL}
+          alt={account.fullName}
           sx={{
             width: 36,
             height: 36,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         >
-          {account.displayName.charAt(0).toUpperCase()}
+          {account.fullName.charAt(0).toUpperCase()}
         </Avatar>
       </IconButton>
 
@@ -91,7 +100,7 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {account.fullName}
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
             {account.email}
@@ -101,7 +110,10 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: "dashed" }} />
 
         {MENU_OPTIONS.map((option) => (
-          <MenuItem key={option.label} onClick={handleClose}>
+          <MenuItem
+            key={option.label}
+            onClick={() => handleMenuClick(option.linkTo)}
+          >
             {option.label}
           </MenuItem>
         ))}

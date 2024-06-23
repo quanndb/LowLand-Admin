@@ -54,7 +54,7 @@ export default function NotFoundView() {
 
           <Box
             component="img"
-            src="/assets/illustrations/illustration_404.svg"
+            src="/assets/illustrations/404SVG.svg"
             sx={{
               mx: "auto",
               height: 260,
@@ -63,7 +63,7 @@ export default function NotFoundView() {
           />
 
           <Button
-            href="/"
+            href="/dashboard"
             size="large"
             variant="contained"
             component={RouterLink}

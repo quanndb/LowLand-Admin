@@ -12,28 +12,48 @@ const icon = (name) => (
 const navConfig = [
   {
     title: "dashboard",
-    path: "/admin/dashboard",
+    path: "/dashboard",
     icon: icon("ic_analytics"),
   },
   {
     title: "user",
-    path: "/admin/user",
+    path: "/user",
     icon: icon("ic_user"),
   },
   {
     title: "product",
-    path: "/admin/products",
+    path: "/products",
     icon: icon("ic_cart"),
   },
   {
     title: "blog",
-    path: "/admin/blog",
+    path: "/blog",
     icon: icon("ic_blog"),
   },
+  // {
+  //   title: "login",
+  //   path: "/login",
+  //   icon: icon("ic_lock"),
+  // },
   {
-    title: "login",
-    path: "/login",
-    icon: icon("ic_lock"),
+    title: "size",
+    path: "/size",
+    icon: icon("ic_analytics"),
+  },
+  {
+    title: "order",
+    path: "/order",
+    icon: icon("ic_order"),
+  },
+  {
+    title: "material",
+    path: "/material",
+    icon: icon("ic_import"),
+  },
+  {
+    title: "importStock",
+    path: "/importStock",
+    icon: icon("ic_import"),
   },
   // {
   //   title: "Not found",

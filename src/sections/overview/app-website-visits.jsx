@@ -5,6 +5,7 @@ import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
 
 import Chart, { useChart } from "src/components/chart";
+import { DatePicker } from "@mui/lab";
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +15,7 @@ export default function AppWebsiteVisits({
   chart,
   ...other
 }) {
-  const { labels, colors, series, options } = chart;
+  const { labels, colors, series, options, forMat } = chart;
 
   const chartOptions = useChart({
     colors,
@@ -28,7 +29,7 @@ export default function AppWebsiteVisits({
     },
     labels,
     xaxis: {
-      type: "datetime",
+      type: "text",
     },
     tooltip: {
       shared: true,
@@ -36,7 +37,7 @@ export default function AppWebsiteVisits({
       y: {
         formatter: (value) => {
           if (typeof value !== "undefined") {
-            return `${value.toFixed(0)} visits`;
+            return `${value.toLocaleString()} Product`;
           }
           return value;
         },

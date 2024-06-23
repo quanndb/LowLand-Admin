@@ -1,3 +1,6 @@
+import { useSelector } from "react-redux";
+import { jwtDecode } from "jwt-decode";
+
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -7,7 +10,6 @@ import Typography from "@mui/material/Typography";
 import { alpha } from "@mui/material/styles";
 import PropTypes from "prop-types";
 import { useEffect } from "react";
-import { account } from "../../_mock/account";
 import Logo from "../../components/logo";
 import Scrollbar from "../../components/scrollbar";
 import { useResponsive } from "../../hooks/use-responsive";
@@ -15,11 +17,12 @@ import { RouterLink } from "../../routes/components";
 import { usePathname } from "../../routes/hooks";
 import { NAV } from "./config-layout";
 import navConfig from "./config-navigation";
-import { jwtDecode } from "jwt-decode";
+import { user } from "src/redux/selectors/UserSelector";
 
 // ----------------------------------------------------------------------
 
 export default function Nav({ openNav, onCloseNav }) {
+  const account = useSelector(user);
   const pathname = usePathname();
 
   const upLg = useResponsive("up", "lg");
@@ -44,10 +47,14 @@ export default function Nav({ openNav, onCloseNav }) {
         bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),
       }}
     >
-      <Avatar src={account.photoURL} alt="photoURL" />
+      <Avatar src={account.imageURL} alt="photoURL" />
 
       <Box sx={{ ml: 2 }}>
-        <Typography variant="h5">{jwtDecode(localStorage.getItem("accessToken")).fullName}</Typography>
+        {/* <Typography variant="h5">{jwtDecode(localStorage.getItem("accessToken")).fullName}</Typography> */}
+
+        <Typography variant="h5" fontSize={"14px !important"}>
+          {account.fullName}
+        </Typography>
 
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {account.role}
@@ -108,7 +115,14 @@ export default function Nav({ openNav, onCloseNav }) {
         },
       }}
     >
-      <Logo sx={{ mt: 3, ml: 4 }} />
+      <Box
+        sx={{ p: 3, display: "flex", alignItems: "center", flexWrap: "wrap" }}
+      >
+        <Logo />
+        <Typography sx={{ ml: 2, fontSize: "19px !important" }} variant="h1">
+          Lowland Admin
+        </Typography>
+      </Box>
 
       {renderAccount}
 
