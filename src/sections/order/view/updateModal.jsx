@@ -212,7 +212,7 @@ const ModalContent = ({
               label="Customer Name"
               fullWidth
               value={updatedOrder.customerName}
-              disabled={newState !== 0}
+              disabled={newState === 3 || newState === 2}
               onChange={handleChange}
               sx={{ mr: 2 }}
             />
@@ -224,7 +224,7 @@ const ModalContent = ({
               label="Phone Number"
               fullWidth
               value={updatedOrder.phoneNumber}
-              disabled={newState !== 0}
+              disabled={newState === 3 || newState === 2}
               onChange={handleChange}
             />
           </Grid>
@@ -235,7 +235,7 @@ const ModalContent = ({
           label="Address"
           fullWidth
           value={updatedOrder.address}
-          disabled={newState !== 0}
+          disabled={newState === 3 || newState === 2}
           onChange={handleChange}
         />
         <TextField
@@ -244,7 +244,7 @@ const ModalContent = ({
           label="Message"
           fullWidth
           value={updatedOrder.message}
-          disabled={newState !== 0}
+          disabled={newState === 3 || newState === 2}
           onChange={handleChange}
         />
         <Grid container spacing={2}>
@@ -297,7 +297,7 @@ const ModalContent = ({
               </InputLabel>
               <Select
                 value={updatedOrder.status}
-                disabled={newState !== 0}
+                disabled={newState === 3 || newState === 2}
                 onChange={(e) =>
                   setUpdatedOrder((prevOrder) => ({
                     ...prevOrder,
@@ -326,7 +326,7 @@ const ModalContent = ({
           label="Note"
           fullWidth
           value={updatedOrder.note}
-          disabled={newState !== 0}
+          disabled={newState === 3 || newState === 2}
           onChange={handleChange}
         />
         <ProductTable products={updatedOrder.items} />
@@ -362,7 +362,7 @@ const ModalContent = ({
                 sx={{ mt: 2, width: "100%" }}
                 variant="contained"
                 onClick={handlePay}
-                disabled={newState !== 0}
+                disabled={newState === 3 || newState === 2}
                 color="success"
               >
                 Payment link
@@ -381,7 +381,7 @@ const ModalContent = ({
           variant="contained"
           color="warning"
           sx={{ color: "white" }}
-          disabled={newState !== 0}
+          disabled={newState === 3 || newState === 2}
         >
           Update
         </Button>
